@@ -31,15 +31,13 @@ services:
         sync: false
       - key: JWT_EXPIRES_IN
         value: 8h
-      # ---- Imágenes / Cloudinary ----
+      # ---- Imágenes ----
+      # IMAGE_STORAGE=url: las fotos de productos se cargan por URL directa
+      # (modo sin dependencias externas; los productos actuales usan URLs).
+      # Para activar Cloudinary después: IMAGE_STORAGE=cloudinary y agregar
+      # CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET.
       - key: IMAGE_STORAGE
-        value: cloudinary
-      - key: CLOUDINARY_CLOUD_NAME
-        sync: false
-      - key: CLOUDINARY_API_KEY
-        sync: false
-      - key: CLOUDINARY_API_SECRET
-        sync: false
+        value: url
       # ---- CORS (dominio GitHub Pages) ----
       - key: CORS_ORIGIN
         value: https://sebasr0311.github.io
