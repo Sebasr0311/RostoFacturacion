@@ -122,7 +122,7 @@ export default function LoginPage() {
                 autoComplete="username"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
-                placeholder="admin@rosto.com"
+                placeholder="usuario@ejemplo.com"
                 className="mt-1.5 w-full rounded-xl border border-cream-200 bg-white px-4 py-2.5 text-sm text-cacao-900 outline-none transition placeholder:text-cacao-500/60 focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
               />
             </label>
