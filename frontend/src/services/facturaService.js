@@ -93,6 +93,40 @@ export async function anularFactura(id) {
 }
 
 /**
+ * Pedidos activos (GET /api/facturas/activos): facturas PAGADA con
+ * estado_envio PENDIENTE, más antiguas primero. El backend devuelve ya
+ * en minúsculas { id_factura, numero_factura, fecha_factura, total,
+ * cliente:{nombre,telefono}, productos:[{nombre,cantidad}] }.
+ */
+export async function listarPedidosActivos() {
+  const res = await api.get('/facturas/activos');
+  const rows = extractData(res) || [];
+  return rows.map((p) => ({
+    id_factura: p.id_factura,
+    numero_factura: p.numero_factura,
+    fecha_factura: p.fecha_factura,
+    total: Number(p.total ?? 0),
+    cliente: {
+      nombre: p.cliente?.nombre ?? null,
+      telefono: p.cliente?.telefono ?? null,
+    },
+    productos: (p.productos || []).map((x) => ({
+      nombre: x.nombre ?? '',
+      cantidad: Number(x.cantidad ?? 0),
+    })),
+  }));
+}
+
+/**
+ * Marca un pedido como ENVIADO (PUT /api/facturas/:id/enviar).
+ * Devuelve la factura actualizada completa (mismo shape que obtenerFactura).
+ */
+export async function marcarPedidoEnviado(id) {
+  const res = await api.put(`/facturas/${id}/enviar`);
+  return normalizeFacturaDetalle(extractData(res));
+}
+
+/**
  * Trae el PDF de la factura como Blob (con auth).
  */
 export async function obtenerPdfFactura(id) {

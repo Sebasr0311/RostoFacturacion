@@ -2,6 +2,7 @@
 // App.jsx — Rutas de la aplicación (HashRouter).
 //   - /login      : login de administrador.
 //   - /           : Punto de venta (POS).
+//   - /pedidos    : Pedidos activos (cola de despacho).
 //   - /productos  : Gestión de productos.
 //   - /historial  : Historial de ventas / dashboard.
 // Las rutas de negocio van detrás de ProtectedRoute (JWT).
@@ -13,6 +14,7 @@ import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
 import PosPage from './pages/PosPage';
+import PedidosActivosPage from './pages/PedidosActivosPage';
 import ProductosPage from './pages/ProductosPage';
 import HistorialPage from './pages/HistorialPage';
 
@@ -31,6 +33,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
           <Route index element={<PosPage />} />
+          <Route path="pedidos" element={<PedidosActivosPage />} />
           <Route path="productos" element={<ProductosPage />} />
           <Route path="historial" element={<HistorialPage />} />
         </Route>

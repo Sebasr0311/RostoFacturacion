@@ -78,3 +78,23 @@ export function initials(name) {
 export function round2(n) {
   return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 }
+
+/**
+ * Tiempo transcurrido en lenguaje humano, p.ej. "hace 12 min".
+ * Ideal para la cola de pedidos: lo que más importa es cuánto lleva
+ * esperando un pedido, no la hora exacta.
+ */
+export function formatHace(value) {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  const diffMs = Math.max(0, Date.now() - d.getTime());
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return 'hace un momento';
+  if (diffMin < 60) return `hace ${diffMin} min`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `hace ${diffH} h`;
+  const diffD = Math.floor(diffH / 24);
+  if (diffD === 1) return 'hace 1 día';
+  return `hace ${diffD} días`;
+}

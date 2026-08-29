@@ -5,12 +5,15 @@
 // El ítem activo se enciende en dorado-frito sobre carbón.
 // ============================================================
 
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { listarPedidosActivos } from '../../services/facturaService';
 import {
   ShoppingCartIcon,
   PackageIcon,
   ChartIcon,
+  BikeIcon,
   XIcon,
   LogOutIcon,
   FlameIcon,
@@ -22,6 +25,72 @@ const NAV_ITEMS = [
   { to: '/productos', label: 'Productos', Icon: PackageIcon },
   { to: '/historial', label: 'Historial / Dashboard', Icon: ChartIcon },
 ];
+
+// Evento global: lo disparan el POS (factura nueva) y PedidosActivosPage
+// (pedido marcado como enviado) para refrescar el badge sin polling.
+const EVENTO_PEDIDOS = 'rosto:pedidos-actualizados';
+
+/**
+ * Ítem de navegación "Pedidos Activos" con badge del número de pedidos
+ * pendientes. Se refresca al montar, al volver a la pestaña (focus) y
+ * cuando se dispara el evento de pedidos.
+ */
+function PedidosNavItem({ onNavigate }) {
+  const [count, setCount] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cargar = async () => {
+      try {
+        const lista = await listarPedidosActivos();
+        if (!cancelled) setCount(Array.isArray(lista) ? lista.length : 0);
+      } catch {
+        // Fallo puntual (p. ej. red o piscina de BD ocupada): NO reseteamos
+        // a 0 para evitar un falso negativo en el badge. El próximo
+        // focus/evento reintenta y corrige el conteo.
+        /* no-op */
+      }
+    };
+    cargar();
+    const onPedidos = () => cargar();
+    window.addEventListener(EVENTO_PEDIDOS, onPedidos);
+    window.addEventListener('focus', onPedidos);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(EVENTO_PEDIDOS, onPedidos);
+      window.removeEventListener('focus', onPedidos);
+    };
+  }, []);
+
+  return (
+    <NavLink
+      to="/pedidos"
+      onClick={onNavigate}
+      className={({ isActive }) =>
+        `group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
+          isActive
+            ? 'bg-dorado-frito text-carbon shadow-lg shadow-black/30'
+            : 'text-crema-suave/75 hover:bg-carbon-claro hover:text-crema-suave'
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <BikeIcon
+            size={20}
+            className={isActive ? 'text-carbon' : 'text-crema-suave/50 group-hover:text-dorado-frito'}
+          />
+          <span className="flex-1">Pedidos Activos</span>
+          {count > 0 && (
+            <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-rojo-brasa px-1.5 text-xs font-bold tabular-nums text-white">
+              {count}
+            </span>
+          )}
+        </>
+      )}
+    </NavLink>
+  );
+}
 
 function Brand() {
   return (
@@ -67,6 +136,7 @@ function NavList({ onNavigate }) {
           )}
         </NavLink>
       ))}
+      <PedidosNavItem onNavigate={onNavigate} />
     </nav>
   );
 }

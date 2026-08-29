@@ -11,12 +11,13 @@
 // ============================================================
 
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Modal from '../ui/Modal';
 import Spinner from '../ui/Spinner';
 import { Skeleton } from '../ui/Skeleton';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import FacturaView from './FacturaView';
-import { DownloadIcon, PrinterIcon, BanIcon, CheckIcon } from '../ui/Icons';
+import { DownloadIcon, PrinterIcon, BanIcon, CheckIcon, BikeIcon } from '../ui/Icons';
 import { obtenerFactura, obtenerPdfFactura, anularFactura } from '../../services/facturaService';
 import { errorMessage, saveBlob, openBlobInNewTab } from '../../services/api';
 import { toast } from '../ui/Toast';
@@ -35,10 +36,21 @@ export default function FacturaModal({
   const [bussy, setBussy] = useState(false);
   const [confirmAnular, setConfirmAnular] = useState(false);
   const [anulando, setAnulando] = useState(false);
+  const navigate = useNavigate();
 
   const invoice = factura || loaded;
   const id = invoice?.id_factura || facturaId;
   const esFlujoPos = Boolean(onNewSale);
+
+  // Al generarse una factura en POS, el pedido entra a la cola de
+  // despacho: notificamos al Sidebar para refrescar su badge.
+  useEffect(() => {
+    if (esFlujoPos && invoice?.id_factura) {
+      window.dispatchEvent(new CustomEvent('rosto:pedidos-actualizados'));
+    }
+    // Solo cuando aparece una factura nueva; el badge no depende del detalle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [esFlujoPos, invoice?.id_factura]);
 
   // Carga del detalle cuando llega facturaId (Historial).
   useEffect(() => {
@@ -183,13 +195,26 @@ export default function FacturaModal({
               </button>
             )}
             {esFlujoPos && (
-              <button
-                type="button"
-                onClick={onNewSale}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-rojo-brasa px-5 py-2.5 font-display text-sm font-bold text-white shadow-brasa transition hover:bg-rojo-brasa-oscuro"
-              >
-                Volver al punto de venta
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose?.();
+                    navigate('/pedidos');
+                  }}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-crema-borde bg-white px-4 py-2 text-sm font-semibold text-carbon shadow-sm transition hover:bg-crema-suave-osc"
+                >
+                  <BikeIcon size={16} />
+                  Ver en Pedidos Activos
+                </button>
+                <button
+                  type="button"
+                  onClick={onNewSale}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-rojo-brasa px-5 py-2.5 font-display text-sm font-bold text-white shadow-brasa transition hover:bg-rojo-brasa-oscuro"
+                >
+                  Volver al punto de venta
+                </button>
+              </>
             )}
           </>
         }

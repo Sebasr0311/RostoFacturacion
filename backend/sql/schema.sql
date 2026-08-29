@@ -97,6 +97,8 @@ CREATE TABLE facturas (
     total          NUMBER(10,2) NOT NULL,
     metodo_pago    VARCHAR2(20) CHECK (metodo_pago IN ('EFECTIVO','TARJETA','TRANSFERENCIA','MIXTO')),
     estado         VARCHAR2(15) DEFAULT 'PAGADA' CHECK (estado IN ('PAGADA','ANULADA')),
+    estado_envio   VARCHAR2(15) DEFAULT 'PENDIENTE' CHECK (estado_envio IN ('PENDIENTE','ENVIADO')),
+    fecha_envio    TIMESTAMP NULL,
     observaciones  VARCHAR2(500)
 );
 

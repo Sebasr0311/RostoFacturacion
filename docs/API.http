@@ -274,26 +274,40 @@ Authorization: Bearer {{token}}
 PUT {{host}}/facturas/1/anular
 Authorization: Bearer {{token}}
 
+### 25. LISTAR pedidos activos — facturas PAGADA con estado_envio PENDIENTE
+# Pedidos pendientes de envío, ordenados por fecha ASC (más antiguos primero).
+# Cada elemento incluye numero_factura, fecha_factura, total, cliente
+# (nombre, telefono) y un resumen de productos ({ nombre, cantidad }).
+GET {{host}}/facturas/activos
+Authorization: Bearer {{token}}
+
+### 26. MARCAR factura como ENVIADA — reemplaza {id}
+# Pone estado_envio=ENVIADO y fecha_envio=SYSTIMESTAMP. Responde la factura
+# actualizada completa. Rechaza con 409 si la factura ya fue enviada o si
+# está ANULADA (nunca aparece en /facturas/activos).
+PUT {{host}}/facturas/1/enviar
+Authorization: Bearer {{token}}
+
 # ============================================================
 # REPORTES (todas requieren autenticación).
 # ============================================================
 
-### 25. REPORTE ventas del día — resumen JSON
+### 27. REPORTE ventas del día — resumen JSON
 # Devuelve { resumen, facturas, productos } para el día actual de la BD.
 GET {{host}}/reportes/ventas-dia
 Authorization: Bearer {{token}}
 
-### 26. REPORTE ventas del día — exportar Excel (.xlsx, 3 hojas)
+### 28. REPORTE ventas del día — exportar Excel (.xlsx, 3 hojas)
 # Devuelve el archivo reporte-ventas.xlsx (Resumen, Detalle Facturas,
 # Detalle Productos). Al ejecutarlo en REST Client se guarda como archivo.
 GET {{host}}/reportes/ventas-dia/excel
 Authorization: Bearer {{token}}
 
-### 27. REPORTE ventas por rango — resumen JSON (YYYY-MM-DD)
+### 29. REPORTE ventas por rango — resumen JSON (YYYY-MM-DD)
 # desde y hasta son obligatorios; si faltan o tienen otro formato, 400.
 GET {{host}}/reportes/ventas-rango?desde=2026-08-01&hasta=2026-08-29
 Authorization: Bearer {{token}}
 
-### 28. REPORTE ventas por rango — exportar Excel (.xlsx, 3 hojas)
+### 30. REPORTE ventas por rango — exportar Excel (.xlsx, 3 hojas)
 GET {{host}}/reportes/ventas-rango/excel?desde=2026-08-01&hasta=2026-08-29
 Authorization: Bearer {{token}}

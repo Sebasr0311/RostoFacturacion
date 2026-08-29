@@ -274,6 +274,29 @@ export function InfoIcon(props) {
  * FlameIcon — Llama/brasero: firma visual de la marca Rosto.
  * Se usa en el sidebar, el login y las facturas (dorado sobre brasa).
  */
+export function BikeIcon(props) {
+  return (
+    <Icon {...props}>
+      <circle cx="5.5" cy="17.5" r="3.5" />
+      <circle cx="18.5" cy="17.5" r="3.5" />
+      <path d="M15 6h3l1.5 5" />
+      <path d="M9 6h6" />
+      <path d="M5.5 17.5 9.5 6" />
+      <path d="M18.5 17.5 15 11l-4 2" />
+      <path d="M7 11 5 13" />
+    </Icon>
+  );
+}
+
+export function RefreshIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+      <path d="M21 3v6h-6" />
+    </Icon>
+  );
+}
+
 export function FlameIcon({ size = 24, className = '' }) {
   return (
     <svg

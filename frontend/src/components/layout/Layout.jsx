@@ -12,6 +12,7 @@ import { formatFechaSola } from '../../utils/format';
 
 const PAGE_TITLES = {
   '/': 'Punto de venta',
+  '/pedidos': 'Pedidos activos',
   '/productos': 'Gestión de productos',
   '/historial': 'Historial y dashboard',
 };
