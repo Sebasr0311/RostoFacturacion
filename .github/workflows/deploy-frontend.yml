@@ -1,0 +1,72 @@
+# ============================================================
+# deploy-frontend.yml — GitHub Pages CI/CD del frontend Rosto.
+#
+# - Trigger: cada push a `main` que toque el frontend (o el
+#   propio workflow). También se puede disparar manualmente.
+# - Build: Node 22, npm ci (lockfile), VITE_API_URL = backend
+#   en Render. El `base` de Vite ya es /RostoFacturacion/.
+# - Deploy: artifact + actions/deploy-pages (entorno github-pages).
+#   Requiere en Settings > Pages: Source = "GitHub Actions".
+# ============================================================
+
+name: Deploy frontend a GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
+  workflow_dispatch:
+
+# GITHUB_TOKEN con permisos mínimos para deploy-pages (OIDC).
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un único deploy concurrente para esta environment.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend
+        env:
+          # Backend de producción (Render). CORS ya permite este origin.
+          VITE_API_URL: https://rostofacturacion.onrender.com
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
