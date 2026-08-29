@@ -31,3 +31,6 @@ Thumbs.db
 
 # Tests / coverage
 coverage/
+
+# CodeGraph (índice local regenerable)
+.codegraph/

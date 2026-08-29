@@ -3,8 +3,8 @@
 # o crea un Web Service manual apuntando al rootdir /backend.
 #
 # Las variables con `sync: false` se solicitan al momento del despliegue.
-# El Oracle Wallet NO va en el repositorio: súbelo como archivo secreto en
-# Render y pasa su directorio de extracción en ORACLE_WALLET_DIR.
+# Conexión a Oracle ATP SIN wallet (mTLS deshabilitado, TLS): el pool usa el
+# connection string *_tp directamente; NO se define ORACLE_WALLET_DIR.
 services:
   - type: web
     name: rosto-facturacion-api
@@ -15,22 +15,20 @@ services:
     healthCheckPath: /api/health
     plan: free
     envVars:
-      - key: NODE_VERSION
-        value: 22
+      - key: NODE_ENV
+        value: production
       - key: PORT
         value: 4000
-      # ---- Oracle Autonomous Database ----
+      # ---- Oracle Autonomous Database (TLS sin wallet, mTLS off) ----
       - key: ORACLE_USER
-        sync: false
+        value: rosto_app
       - key: ORACLE_PASSWORD
         sync: false
       - key: ORACLE_CONNECT_STRING
-        sync: false # ej: pollo_adw_high (nombre de servicio del wallet)
-      - key: ORACLE_WALLET_DIR
-        sync: false # ej: /etc/secrets/wallet (directorio del wallet extraído)
+        sync: false # servicio *_tp: (description=...(protocol=tcps)...(service_name=..._tp.adb.oraclecloud.com)...)
       # ---- Autenticación ----
       - key: JWT_SECRET
-        generateValue: true
+        sync: false
       - key: JWT_EXPIRES_IN
         value: 8h
       # ---- Imágenes / Cloudinary ----
@@ -44,7 +42,7 @@ services:
         sync: false
       # ---- CORS (dominio GitHub Pages) ----
       - key: CORS_ORIGIN
-        sync: false # ej: https://sebasr0311.github.io
+        value: https://sebasr0311.github.io
       # ---- Impuestos ----
       - key: IMPUESTO_PORCENTAJE
         value: 19
