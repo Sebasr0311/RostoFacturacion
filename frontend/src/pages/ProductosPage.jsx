@@ -17,9 +17,12 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import EmptyState from '../components/ui/EmptyState';
 import Spinner from '../components/ui/Spinner';
 import { TableSkeleton } from '../components/ui/Skeleton';
-import { PlusIcon, PencilIcon, TrashIcon, PackageIcon } from '../components/ui/Icons';
+import { PlusIcon, PencilIcon, TrashIcon, PackageIcon, FlameIcon } from '../components/ui/Icons';
 import { formatCOP } from '../utils/format';
 import { ESTADO_PRODUCTO } from '../utils/constants';
+
+const MSG_SERVER =
+  'No pudimos conectarnos con el servidor. Verifica que la API esté disponible y volvé a intentar.';
 
 function EstadoBadge({ estado }) {
   const info = ESTADO_PRODUCTO[estado] || { label: estado };
@@ -27,7 +30,7 @@ function EstadoBadge({ estado }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-        activo ? 'bg-emerald-100 text-emerald-700' : 'bg-brand-100 text-brand-700'
+        activo ? 'bg-mostaza-suave text-carbon' : 'bg-crema-borde text-carbon/70'
       }`}
     >
       {info.label}
@@ -39,8 +42,8 @@ function Thumb({ producto }) {
   const [broken, setBroken] = useState(false);
   if (!producto.imagen_url || broken) {
     return (
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cream-100 text-2xl">
-        🍗
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-mostaza-suave text-rojo-brasa">
+        <FlameIcon size={22} />
       </span>
     );
   }
@@ -76,7 +79,7 @@ export default function ProductosPage() {
       setProductos(prods);
       setCategorias(cats.filter((c) => c.estado === 'ACTIVO'));
     } catch (err) {
-      setError(errorMessage(err, 'No se pudieron cargar los productos.'));
+      setError(errorMessage(err, MSG_SERVER));
     } finally {
       setLoading(false);
     }
@@ -112,7 +115,7 @@ export default function ProductosPage() {
       setEliminando(null);
       cargarDatos();
     } catch (err) {
-      toast.error(errorMessage(err, 'No se pudo eliminar el producto.'));
+      toast.error(errorMessage(err, MSG_SERVER));
     } finally {
       setDeleting(false);
     }
@@ -122,17 +125,19 @@ export default function ProductosPage() {
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold text-cacao-900">Productos</h1>
-          <p className="text-sm text-cacao-600">Administra el catálogo del punto de venta.</p>
+          <h1 className="font-display text-3xl font-bold text-carbon">Productos</h1>
+          <p className="mt-0.5 text-sm text-carbon/65">
+            Administra el catálogo del punto de venta.
+          </p>
         </div>
         {isAdmin && (
           <button
             type="button"
             onClick={abrirNuevo}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-brand-700"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-rojo-brasa px-4 py-2.5 text-sm font-semibold text-white shadow-brasa transition hover:bg-rojo-brasa-oscuro"
           >
             <PlusIcon size={18} />
-            Nuevo producto
+            Agregar producto
           </button>
         )}
       </div>
@@ -142,13 +147,13 @@ export default function ProductosPage() {
       ) : error ? (
         <EmptyState
           icon={<PackageIcon size={26} />}
-          title="No se pudieron cargar los productos"
+          title="No se pudo cargar el catálogo"
           message={error}
           action={
             <button
               type="button"
               onClick={cargarDatos}
-              className="rounded-xl bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+              className="rounded-xl bg-rojo-brasa px-5 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-rojo-brasa-oscuro"
             >
               Reintentar
             </button>
@@ -157,40 +162,56 @@ export default function ProductosPage() {
       ) : productos.length === 0 ? (
         <EmptyState
           icon={<PackageIcon size={26} />}
-          title="No hay productos registrados"
-          message={isAdmin ? 'Crea el primer producto con el botón "Nuevo producto".' : 'El catálogo está vacío.'}
+          title="Todavía no hay productos"
+          message={
+            isAdmin
+              ? 'Agrega el primer producto con el botón "Agregar producto".'
+              : 'El catálogo está vacío.'
+          }
+          action={
+            isAdmin ? (
+              <button
+                type="button"
+                onClick={abrirNuevo}
+                className="rounded-xl bg-rojo-brasa px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-rojo-brasa-oscuro"
+              >
+                Agregar producto
+              </button>
+            ) : undefined
+          }
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-cream-200 bg-white shadow-card">
+        <div className="overflow-hidden rounded-2xl border border-crema-borde bg-white shadow-card">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
+              <caption className="sr-only">Listado de productos del catálogo</caption>
               <thead>
-                <tr className="border-b border-cream-200 bg-cream-50 text-left text-[11px] font-semibold uppercase tracking-wide text-cacao-500">
-                  <th className="px-4 py-3">Producto</th>
-                  <th className="px-4 py-3">Precio</th>
-                  <th className="px-4 py-3">Categoría</th>
-                  <th className="px-4 py-3">Estado</th>
-                  {isAdmin && <th className="px-4 py-3 text-right">Acciones</th>}
+                <tr className="border-b border-crema-borde bg-crema-suave text-left text-[11px] font-semibold uppercase tracking-wide text-carbon/60">
+                  <th scope="col" className="px-4 py-3">Producto</th>
+                  <th scope="col" className="px-4 py-3">Precio</th>
+                  <th scope="col" className="px-4 py-3">Categoría</th>
+                  <th scope="col" className="px-4 py-3">Estado</th>
+                  {isAdmin && <th scope="col" className="px-4 py-3 text-right">Acciones</th>}
                 </tr>
               </thead>
               <tbody>
                 {productos.map((p) => (
-                  <tr key={p.id_producto} className="border-b border-cream-100 transition hover:bg-cream-50/60">
+                  <tr key={p.id_producto} className="border-b border-crema-borde transition hover:bg-crema-suave/60">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Thumb producto={p} />
                         <div className="min-w-0">
-                          <p className="font-semibold text-cacao-900">{p.nombre}</p>
+                          <p className="font-semibold text-carbon">{p.nombre}</p>
                           {p.descripcion && (
-                            <p className="max-w-xs truncate text-xs text-cacao-600">{p.descripcion}</p>
+                            <p className="max-w-xs truncate text-xs text-carbon/60">{p.descripcion}</p>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 font-semibold text-cacao-900">
+                    <td className="whitespace-nowrap px-4 py-3 font-semibold tabular-nums text-carbon">
                       {formatCOP(p.precio)}
                     </td>
-                    <td className="px-4 py-3 text-cacao-700">{p.categoria_nombre || '—'}</td>
+                    <td className="px-4 py-3 text-carbon/70">{p.categoria_nombre || '—'}</td>
                     <td className="px-4 py-3">
                       <EstadoBadge estado={p.estado} />
                     </td>
@@ -200,16 +221,18 @@ export default function ProductosPage() {
                           <button
                             type="button"
                             onClick={() => abrirEditar(p)}
-                            className="rounded-lg p-2 text-cacao-600 transition hover:bg-cream-100 hover:text-brand-600"
+                            className="flex h-11 w-11 items-center justify-center rounded-lg text-carbon/60 transition hover:bg-crema-suave-osc hover:text-dorado-oscuro"
                             title="Editar"
+                            aria-label={`Editar ${p.nombre}`}
                           >
                             <PencilIcon size={17} />
                           </button>
                           <button
                             type="button"
                             onClick={() => setEliminando(p)}
-                            className="rounded-lg p-2 text-cacao-600 transition hover:bg-brand-50 hover:text-brand-600"
+                            className="flex h-11 w-11 items-center justify-center rounded-lg text-carbon/60 transition hover:bg-brasa-suave hover:text-rojo-brasa-oscuro"
                             title="Eliminar (inactivar)"
+                            aria-label={`Eliminar ${p.nombre}`}
                           >
                             <TrashIcon size={17} />
                           </button>
@@ -237,9 +260,9 @@ export default function ProductosPage() {
 
       <ConfirmDialog
         open={Boolean(eliminando)}
-        title="¿Eliminar producto?"
+        title="¿Eliminar este producto?"
         message={`"${eliminando?.nombre || ''}" pasará a estado INACTIVO; no se podrá vender en el punto de venta, pero se conserva su historial.`}
-        confirmLabel="Eliminar"
+        confirmLabel="Eliminar producto"
         loading={deleting}
         onConfirm={handleEliminar}
         onCancel={() => setEliminando(null)}

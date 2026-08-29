@@ -1,6 +1,6 @@
 // ============================================================
 // components/layout/Layout.jsx — Esqueleto de la app protegida:
-// sidebar (drawer en móvil) + barra superior + contenido (Outlet).
+// skip-link, sidebar (drawer en móvil) + barra superior + contenido.
 // ============================================================
 
 import { useState } from 'react';
@@ -23,29 +23,40 @@ export default function Layout() {
   const title = PAGE_TITLES[pathname] || 'Rosto';
 
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="min-h-screen">
+      <a
+        href="#contenido-principal"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-xl focus:bg-dorado-frito focus:px-4 focus:py-2.5 focus:font-semibold focus:text-carbon focus:shadow-soft"
+      >
+        Saltar al contenido
+      </a>
+
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="lg:pl-72">
         {/* Barra superior móvil/tablet */}
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-cream-200 bg-cream-50/90 px-4 py-3 backdrop-blur lg:hidden">
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-crema-borde bg-crema-suave/90 px-4 py-3 backdrop-blur lg:hidden">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="rounded-xl border border-cream-200 bg-white p-2 text-cacao-800 shadow-sm transition hover:bg-cream-100"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-crema-borde bg-white text-carbon shadow-sm transition hover:bg-crema-suave-osc active:scale-95"
             aria-label="Abrir menú"
           >
             <MenuIcon size={20} />
           </button>
           <div className="flex-1">
-            <p className="font-display text-sm font-semibold text-cacao-900">{title}</p>
-            <p className="text-[11px] text-cacao-600">
+            <p className="font-display text-base font-semibold text-carbon">{title}</p>
+            <p className="text-xs text-carbon/60">
               {usuario?.nombre_completo || ''} · {formatFechaSola(new Date())}
             </p>
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8">
+        <main
+          id="contenido-principal"
+          tabIndex={-1}
+          className="mx-auto w-full max-w-[1400px] px-4 py-6 outline-none sm:px-6 lg:px-8"
+        >
           <Outlet />
         </main>
       </div>

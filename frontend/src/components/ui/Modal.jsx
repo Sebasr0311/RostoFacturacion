@@ -39,7 +39,7 @@ export default function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div
-        className="absolute inset-0 bg-cacao-950/60 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-carbon/60 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -47,15 +47,15 @@ export default function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title || 'Diálogo'}
-        className={`relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-soft sm:rounded-2xl ${SIZES[size]}`}
+        className={`relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-soft motion-safe:animate-fade-in sm:rounded-2xl ${SIZES[size]}`}
       >
         {title && (
-          <div className="flex items-center justify-between gap-4 border-b border-cream-100 px-5 py-4">
-            <h3 className="font-display text-lg font-semibold text-cacao-900">{title}</h3>
+          <div className="flex items-center justify-between gap-4 border-b border-crema-borde px-5 py-4">
+            <h3 className="font-display text-lg font-semibold text-carbon">{title}</h3>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-cacao-500 transition hover:bg-cream-100 hover:text-cacao-900"
+              className="rounded-lg p-2 text-carbon/60 transition hover:bg-crema-suave-osc hover:text-carbon"
               aria-label="Cerrar"
             >
               <XIcon size={20} />
@@ -64,7 +64,7 @@ export default function Modal({
         )}
         <div className="overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
-          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-cream-100 bg-cream-50 px-5 py-3">
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-crema-borde bg-crema-suave px-5 py-3">
             {footer}
           </div>
         )}

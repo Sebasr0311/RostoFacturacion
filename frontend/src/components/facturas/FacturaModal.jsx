@@ -3,9 +3,11 @@
 //
 // - Recibe `factura` completa (caso POS: respuesta de POST) O
 //   `facturaId` (caso Historial: carga GET /api/facturas/:id).
+// - Flujo POS (recibe `onNewSale`): título "Factura generada" con
+//   animación de check (firma) y CTA "Volver al punto de venta".
 // - Acciones: Descargar PDF (blob + auth -> download), Imprimir
-//   (blob + auth -> pestaña nueva con el PDF del servidor) y, si
-//   `annulable`, Anular con confirmación.
+//   (blob + auth -> pestaña nueva) y, si `annulable`, "Anular factura"
+//   con confirmación cuyo copy repite el nombre de la acción.
 // ============================================================
 
 import { useEffect, useState } from 'react';
@@ -14,7 +16,7 @@ import Spinner from '../ui/Spinner';
 import { Skeleton } from '../ui/Skeleton';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import FacturaView from './FacturaView';
-import { DownloadIcon, PrinterIcon, BanIcon } from '../ui/Icons';
+import { DownloadIcon, PrinterIcon, BanIcon, CheckIcon } from '../ui/Icons';
 import { obtenerFactura, obtenerPdfFactura, anularFactura } from '../../services/facturaService';
 import { errorMessage, saveBlob, openBlobInNewTab } from '../../services/api';
 import { toast } from '../ui/Toast';
@@ -36,6 +38,7 @@ export default function FacturaModal({
 
   const invoice = factura || loaded;
   const id = invoice?.id_factura || facturaId;
+  const esFlujoPos = Boolean(onNewSale);
 
   // Carga del detalle cuando llega facturaId (Historial).
   useEffect(() => {
@@ -54,7 +57,9 @@ export default function FacturaModal({
       })
       .catch((err) => {
         if (!cancelled) {
-          toast.error(errorMessage(err, 'No se pudo cargar la factura.'));
+          toast.error(
+            errorMessage(err, 'No se pudo cargar la factura. Verifica la conexión y volvé a intentar.')
+          );
           onClose?.();
         }
       })
@@ -80,9 +85,9 @@ export default function FacturaModal({
     try {
       const blob = await obtenerPdfFactura(id);
       saveBlob(blob, `factura-${invoice.numero_factura}.pdf`);
-      toast.success('PDF descargado.');
+      toast.success('PDF de la factura descargado.');
     } catch (err) {
-      toast.error(errorMessage(err, 'No se pudo descargar el PDF.'));
+      toast.error(errorMessage(err, 'No se pudo descargar el PDF. Verifica la conexión y volvé a intentar.'));
     } finally {
       setBussy(false);
     }
@@ -110,7 +115,7 @@ export default function FacturaModal({
     try {
       await anularFactura(id);
       setConfirmAnular(false);
-      toast.success('Factura anulada correctamente.');
+      toast.success('Factura anulada.');
       if (onAnnulled) onAnnulled(invoice.numero_factura);
       onClose?.();
     } catch (err) {
@@ -120,31 +125,28 @@ export default function FacturaModal({
     }
   };
 
+  const title = invoice
+    ? esFlujoPos
+      ? 'Factura generada'
+      : `Factura ${invoice.numero_factura}`
+    : 'Factura';
+
   return (
     <>
       <Modal
         open={open}
         onClose={onClose}
-        title={invoice ? `Factura ${invoice.numero_factura}` : 'Factura'}
+        title={title}
         size="xl"
         footer={
           <>
-            {onNewSale && invoice && (
-              <button
-                type="button"
-                onClick={onNewSale}
-                className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600"
-              >
-                Nueva venta
-              </button>
-            )}
             {invoice && (
               <>
                 <button
                   type="button"
                   onClick={handleDescargar}
                   disabled={bussy}
-                  className="inline-flex items-center gap-2 rounded-xl border border-cream-200 bg-white px-4 py-2 text-sm font-semibold text-cacao-800 shadow-sm transition hover:bg-cream-50 disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-crema-borde bg-white px-4 py-2 text-sm font-semibold text-carbon shadow-sm transition hover:bg-crema-suave-osc disabled:opacity-60"
                 >
                   <DownloadIcon size={16} />
                   Descargar PDF
@@ -153,7 +155,7 @@ export default function FacturaModal({
                   type="button"
                   onClick={handleImprimir}
                   disabled={bussy}
-                  className="inline-flex items-center gap-2 rounded-xl bg-cacao-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-cacao-950 disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-carbon px-4 py-2 text-sm font-semibold text-crema-suave shadow-card transition hover:bg-carbon-claro disabled:opacity-60"
                 >
                   <PrinterIcon size={16} />
                   Imprimir
@@ -163,21 +165,32 @@ export default function FacturaModal({
                     type="button"
                     onClick={() => setConfirmAnular(true)}
                     disabled={bussy}
-                    className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2 text-sm font-semibold text-brand-600 shadow-sm transition hover:bg-brand-50 disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-rojo-brasa/40 bg-white px-4 py-2 text-sm font-semibold text-rojo-brasa-oscuro shadow-sm transition hover:bg-brasa-suave disabled:opacity-60"
                   >
                     <BanIcon size={16} />
-                    Anular
+                    Anular factura
                   </button>
                 )}
               </>
             )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl border border-cream-200 bg-white px-4 py-2 text-sm font-semibold text-cacao-800 shadow-sm transition hover:bg-cream-50"
-            >
-              Cerrar
-            </button>
+            {!esFlujoPos && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-xl border border-crema-borde bg-white px-4 py-2 text-sm font-semibold text-carbon shadow-sm transition hover:bg-crema-suave-osc"
+              >
+                Cerrar
+              </button>
+            )}
+            {esFlujoPos && (
+              <button
+                type="button"
+                onClick={onNewSale}
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-rojo-brasa px-5 py-2.5 font-display text-sm font-bold text-white shadow-brasa transition hover:bg-rojo-brasa-oscuro"
+              >
+                Volver al punto de venta
+              </button>
+            )}
           </>
         }
       >
@@ -188,14 +201,33 @@ export default function FacturaModal({
             <Skeleton className="h-40 w-full" />
           </div>
         ) : invoice ? (
-          <FacturaView factura={invoice} />
+          <div className="space-y-3">
+            {esFlujoPos && (
+              <div
+                key={invoice.numero_factura}
+                className="flex items-center gap-3 rounded-xl bg-mostaza-suave px-4 py-3 motion-safe:animate-pop-in"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-dorado-frito text-carbon">
+                  <CheckIcon size={18} />
+                </span>
+                <p className="text-sm font-medium text-carbon">
+                  La factura {invoice.numero_factura} se generó correctamente.
+                </p>
+              </div>
+            )}
+            <FacturaView factura={invoice} />
+          </div>
         ) : null}
       </Modal>
 
       <ConfirmDialog
         open={confirmAnular}
-        title="¿Anular esta factura?"
-        message={`La factura ${invoice?.numero_factura || ''} quedará con estado ANULADA y no contará en los reportes de ventas. Esta acción no se puede deshacer.`}
+        title={
+          invoice?.numero_factura
+            ? `¿Anular la factura ${invoice.numero_factura}?`
+            : '¿Anular esta factura?'
+        }
+        message="Quedará con estado ANULADA y no contará en los reportes de ventas. Esta acción no se puede deshacer."
         confirmLabel="Anular factura"
         loading={anulando}
         onConfirm={handleConfirmarAnular}

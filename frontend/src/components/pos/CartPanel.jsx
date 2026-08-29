@@ -1,7 +1,11 @@
 // ============================================================
 // components/pos/CartPanel.jsx — Carrito de la orden.
-// Desktop: panel fijo a la derecha. Móvil/tablet: drawer deslizante
-// (controlado por `open` desde PosPage).
+// Desktop: panel fijo a la derecha (protagonista del módulo).
+// Móvil/tablet: drawer deslizante (controlado por `open`).
+//
+// FIRMA (a): el ícono del carrito hace un rebote pequeño cada vez
+// que el conteo cambia (key={count} re-dispara la animación,
+// 300ms; motion-reduce la desactiva).
 //
 // Nota de contrato: el backend recibe `descuento` en COP absolutos.
 // La UI pide un porcentaje y aquí se convierte: desc = subtotal*pct/100.
@@ -16,6 +20,7 @@ import {
   XIcon,
   ChevronDownIcon,
   ReceiptIcon,
+  FlameIcon,
 } from '../ui/Icons';
 import Spinner from '../ui/Spinner';
 import { formatCOP, round2 } from '../../utils/format';
@@ -27,21 +32,22 @@ function ClienteSection({ cliente, onChange }) {
   const setField = (field) => (e) => onChange({ ...cliente, [field]: e.target.value });
 
   return (
-    <div className="rounded-xl border border-cream-200 bg-cream-50/60 p-3">
+    <div className="rounded-xl border border-crema-borde bg-crema-suave p-3">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between text-sm font-semibold text-cacao-800"
+        aria-expanded={open}
+        className="flex min-h-11 w-full items-center justify-between gap-2 text-sm font-semibold text-carbon"
       >
         <span>Datos del cliente (opcional)</span>
         <ChevronDownIcon
           size={18}
-          className={`text-cacao-500 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`shrink-0 text-carbon/60 transition-transform ${open ? 'rotate-180' : ''}`}
         />
       </button>
       {open && (
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <label className="block text-xs font-medium text-cacao-600">
+          <label className="block text-xs font-medium text-carbon/75">
             Nombre
             <input
               type="text"
@@ -49,10 +55,10 @@ function ClienteSection({ cliente, onChange }) {
               onChange={setField('nombre')}
               maxLength={150}
               placeholder="Nombre del cliente"
-              className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition placeholder:text-cacao-500/60 focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40"
             />
           </label>
-          <label className="block text-xs font-medium text-cacao-600">
+          <label className="block text-xs font-medium text-carbon/75">
             Documento
             <input
               type="text"
@@ -60,10 +66,10 @@ function ClienteSection({ cliente, onChange }) {
               onChange={setField('documento')}
               maxLength={30}
               placeholder="CC / NIT"
-              className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition placeholder:text-cacao-500/60 focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40"
             />
           </label>
-          <label className="block text-xs font-medium text-cacao-600 sm:col-span-2">
+          <label className="block text-xs font-medium text-carbon/75 sm:col-span-2">
             Teléfono
             <input
               type="tel"
@@ -71,7 +77,7 @@ function ClienteSection({ cliente, onChange }) {
               onChange={setField('telefono')}
               maxLength={30}
               placeholder="300 000 0000"
-              className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition placeholder:text-cacao-500/60 focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40"
             />
           </label>
         </div>
@@ -108,13 +114,22 @@ export default function CartPanel({
   const content = (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-cream-200 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-crema-borde px-4 py-3">
         <div className="flex items-center gap-2">
-          <ShoppingCartIcon size={20} className="text-brand-600" />
-          <h2 className="font-display text-base font-semibold text-cacao-900">Carrito</h2>
+          {/* Rebote del carrito al cambiar el conteo (firma) */}
+          <ShoppingCartIcon
+            key={count}
+            size={22}
+            className="text-dorado-oscuro motion-safe:animate-cart-bump"
+          />
+          <h2 className="font-display text-lg font-semibold text-carbon">Tu orden</h2>
           {count > 0 && (
-            <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-bold text-white">
-              {count}
+            <span
+              key={count}
+              aria-live="polite"
+              className="rounded-full bg-carbon px-2.5 py-0.5 text-xs font-bold tabular-nums text-dorado-frito motion-safe:animate-pop-in"
+            >
+              {count} ítems
             </span>
           )}
         </div>
@@ -123,8 +138,9 @@ export default function CartPanel({
             <button
               type="button"
               onClick={onClear}
-              className="rounded-lg p-1.5 text-cacao-500 transition hover:bg-cream-100 hover:text-brand-600"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-carbon/50 transition hover:bg-crema-suave-osc hover:text-rojo-brasa"
               title="Vaciar carrito"
+              aria-label="Vaciar carrito"
             >
               <TrashIcon size={18} />
             </button>
@@ -132,7 +148,7 @@ export default function CartPanel({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-cacao-500 transition hover:bg-cream-100 hover:text-cacao-900 lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-carbon/50 transition hover:bg-crema-suave-osc hover:text-carbon lg:hidden"
             aria-label="Cerrar carrito"
           >
             <XIcon size={20} />
@@ -144,12 +160,14 @@ export default function CartPanel({
       <div className="flex-1 overflow-y-auto px-4 py-3">
         {cart.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-cream-100 text-cacao-500">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-mostaza-suave text-dorado-oscuro">
               <ShoppingCartIcon size={30} />
             </span>
             <div>
-              <p className="font-display text-sm font-semibold text-cacao-900">El carrito está vacío</p>
-              <p className="mt-1 text-xs text-cacao-600">
+              <p className="font-display text-base font-semibold text-carbon">
+                Tu orden está vacía
+              </p>
+              <p className="mx-auto mt-1 max-w-[240px] text-sm text-carbon/70">
                 Toca un producto del catálogo para agregarlo a la orden.
               </p>
             </div>
@@ -159,55 +177,64 @@ export default function CartPanel({
             {cart.map((item) => (
               <li
                 key={item.id_producto}
-                className="flex gap-3 rounded-xl border border-cream-200 bg-white p-2.5 shadow-sm"
+                className="flex gap-3 rounded-xl border border-crema-borde bg-white p-2.5 shadow-sm"
               >
                 {item.imagen_url ? (
                   <img
                     src={item.imagen_url}
                     alt={item.nombre}
-                    className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                    className="h-16 w-16 shrink-0 rounded-lg object-cover"
                   />
                 ) : (
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-cream-100 text-2xl">
-                    🍗
+                  <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-mostaza-suave text-dorado-oscuro">
+                    <FlameIcon size={28} />
                   </span>
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="line-clamp-2 text-sm font-semibold text-cacao-900">{item.nombre}</p>
+                    <p className="line-clamp-2 font-display text-[15px] font-semibold leading-snug text-carbon">
+                      {item.nombre}
+                    </p>
                     <button
                       type="button"
                       onClick={() => onRemove(item.id_producto)}
-                      className="rounded p-1 text-cacao-400 transition hover:bg-cream-100 hover:text-brand-600"
-                      aria-label={`Quitar ${item.nombre}`}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-carbon/40 transition hover:bg-brasa-suave hover:text-rojo-brasa"
+                      aria-label={`Quitar ${item.nombre} de la orden`}
+                      title={`Quitar ${item.nombre}`}
                     >
                       <TrashIcon size={15} />
                     </button>
                   </div>
-                  <p className="mt-0.5 text-xs text-cacao-600">{formatCOP(item.precio)} c/u</p>
+                  <p className="mt-0.5 text-xs tabular-nums text-carbon/60">
+                    {formatCOP(item.precio)} c/u
+                  </p>
                   <div className="mt-2 flex items-center justify-between">
-                    <div className="flex items-center gap-1 rounded-lg border border-cream-200 bg-cream-50 p-0.5">
+                    <div
+                      className="flex items-center gap-1 rounded-xl border border-crema-borde bg-crema-suave p-1"
+                      role="group"
+                      aria-label={`Cantidad de ${item.nombre}`}
+                    >
                       <button
                         type="button"
                         onClick={() => onDecrement(item.id_producto)}
-                        className="rounded-md p-1 text-cacao-700 transition hover:bg-white hover:text-brand-600"
-                        aria-label="Disminuir cantidad"
+                        className="flex h-11 w-11 items-center justify-center rounded-lg text-carbon transition hover:bg-white hover:text-rojo-brasa active:scale-95"
+                        aria-label={`Disminuir cantidad de ${item.nombre}`}
                       >
-                        <MinusIcon size={14} />
+                        <MinusIcon size={16} />
                       </button>
-                      <span className="w-7 text-center text-sm font-bold text-cacao-900">
+                      <span className="w-8 text-center text-sm font-bold tabular-nums text-carbon">
                         {item.cantidad}
                       </span>
                       <button
                         type="button"
                         onClick={() => onIncrement(item.id_producto)}
-                        className="rounded-md p-1 text-cacao-700 transition hover:bg-white hover:text-brand-600"
-                        aria-label="Aumentar cantidad"
+                        className="flex h-11 w-11 items-center justify-center rounded-lg text-carbon transition hover:bg-white hover:text-dorado-oscuro active:scale-95"
+                        aria-label={`Aumentar cantidad de ${item.nombre}`}
                       >
-                        <PlusIcon size={14} />
+                        <PlusIcon size={16} />
                       </button>
                     </div>
-                    <p className="text-sm font-bold text-cacao-900">
+                    <p className="font-display text-base font-bold tabular-nums text-carbon">
                       {formatCOP(item.precio * item.cantidad)}
                     </p>
                   </div>
@@ -220,12 +247,12 @@ export default function CartPanel({
 
       {/* Config + totales */}
       {cart.length > 0 && (
-        <div className="space-y-3 border-t border-cream-200 px-4 py-3">
+        <div className="space-y-3 border-t border-crema-borde px-4 py-3">
           <ClienteSection cliente={cliente} onChange={onClienteChange} />
 
           {/* Método de pago */}
           <div>
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-cacao-600">
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-carbon/60">
               Método de pago
             </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -236,10 +263,11 @@ export default function CartPanel({
                     key={m.value}
                     type="button"
                     onClick={() => onMetodoPagoChange(m.value)}
-                    className={`rounded-lg border px-2 py-2 text-xs font-semibold transition ${
+                    aria-pressed={selected}
+                    className={`min-h-11 rounded-lg border px-2 py-2 text-xs font-semibold transition ${
                       selected
-                        ? 'border-brand-600 bg-brand-600 text-white shadow-card'
-                        : 'border-cream-200 bg-white text-cacao-700 hover:border-brand-300'
+                        ? 'border-rojo-brasa bg-rojo-brasa text-white shadow-card'
+                        : 'border-crema-borde bg-white text-carbon/80 hover:border-dorado-frito'
                     }`}
                   >
                     {m.label}
@@ -251,7 +279,7 @@ export default function CartPanel({
 
           {/* Descuento + observaciones */}
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label className="block text-xs font-medium text-cacao-600">
+            <label className="block text-xs font-medium text-carbon/75">
               Descuento (%)
               <input
                 type="number"
@@ -260,10 +288,11 @@ export default function CartPanel({
                 step="1"
                 value={descuentoPct}
                 onChange={(e) => onDescuentoPctChange(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+                inputMode="numeric"
+                className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm tabular-nums text-carbon placeholder:text-carbon/40"
               />
             </label>
-            <label className="block text-xs font-medium text-cacao-600">
+            <label className="block text-xs font-medium text-carbon/75">
               Observaciones
               <input
                 type="text"
@@ -271,32 +300,36 @@ export default function CartPanel({
                 onChange={(e) => onObservacionesChange(e.target.value)}
                 maxLength={500}
                 placeholder="Nota en la factura"
-                className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition placeholder:text-cacao-500/60 focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+                className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40"
               />
             </label>
           </div>
 
           {/* Totales */}
-          <div className="space-y-1 rounded-xl bg-cream-100/70 p-3 text-sm">
-            <div className="flex justify-between text-cacao-700">
+          <div className="space-y-1.5 rounded-2xl border border-crema-borde bg-white p-4 shadow-card text-sm">
+            <div className="flex justify-between text-carbon/75">
               <span>Subtotal</span>
-              <span className="font-semibold">{formatCOP(subtotal)}</span>
+              <span className="font-semibold tabular-nums">{formatCOP(subtotal)}</span>
             </div>
-            <div className="flex justify-between text-cacao-700">
+            <div className="flex justify-between text-carbon/75">
               <span>IVA ({IVA_PORCENTAJE_PREVIEW} %)</span>
-              <span className="font-semibold">{formatCOP(ivaPreview)}</span>
+              <span className="font-semibold tabular-nums">{formatCOP(ivaPreview)}</span>
             </div>
             {descuentoCOP > 0 && (
-              <div className="flex justify-between text-emerald-700">
+              <div className="flex justify-between text-rojo-brasa-oscuro">
                 <span>Descuento</span>
-                <span className="font-semibold">− {formatCOP(descuentoCOP)}</span>
+                <span className="font-semibold tabular-nums">− {formatCOP(descuentoCOP)}</span>
               </div>
             )}
-            <div className="flex justify-between border-t border-cream-300 pt-1.5 font-display text-base font-bold text-cacao-900">
-              <span>Total estimado</span>
-              <span className="text-brand-600">{formatCOP(totalPreview)}</span>
+            <div className="flex items-baseline justify-between border-t border-crema-borde pt-2">
+              <span className="font-display text-base font-semibold text-carbon">
+                Total estimado
+              </span>
+              <span className="font-display text-2xl font-bold tabular-nums text-rojo-brasa">
+                {formatCOP(totalPreview)}
+              </span>
             </div>
-            <p className="text-[11px] text-cacao-500">
+            <p className="text-[11px] text-carbon/50">
               El servidor calcula los valores finales de la factura (IVA y precios de BD).
             </p>
           </div>
@@ -305,7 +338,7 @@ export default function CartPanel({
             type="button"
             onClick={onGenerar}
             disabled={generating}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 font-display text-base font-bold text-white shadow-card transition hover:bg-brand-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-rojo-brasa px-4 py-3 font-display text-base font-bold text-white shadow-brasa transition hover:bg-rojo-brasa-oscuro active:scale-[0.99] motion-reduce:active:scale-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {generating ? <Spinner size={20} light /> : <ReceiptIcon size={20} />}
             {generating ? 'Generando factura…' : 'Generar factura'}
@@ -320,21 +353,21 @@ export default function CartPanel({
       {/* Overlay móvil */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-cacao-950/50 backdrop-blur-[1px] lg:hidden"
+          className="fixed inset-0 z-40 bg-carbon/50 backdrop-blur-[1px] lg:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
       {/* Drawer móvil (dentro del flujo, a la derecha) */}
       <div
-        className={`fixed inset-y-0 right-0 z-50 flex w-[min(92vw,400px)] flex-col bg-white shadow-soft transition-transform duration-300 lg:hidden ${
+        className={`fixed inset-y-0 right-0 z-50 flex w-[min(92vw,400px)] flex-col bg-crema-suave shadow-soft transition-transform duration-300 motion-reduce:transition-none lg:hidden ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {content}
       </div>
       {/* Panel fijo desktop */}
-      <div className="fixed inset-y-0 right-0 z-20 hidden w-[400px] flex-col border-l border-cream-200 bg-white shadow-soft lg:flex" style={{ marginTop: 0 }}>
+      <div className="fixed inset-y-0 right-0 z-20 hidden w-[400px] flex-col border-l border-crema-borde bg-crema-suave shadow-soft lg:flex">
         {content}
       </div>
     </>

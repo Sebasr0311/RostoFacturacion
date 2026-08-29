@@ -12,6 +12,7 @@
 
 import { METODO_PAGO_LABEL, ESTADO_FACTURA } from '../../utils/constants';
 import { formatCOP, formatFecha } from '../../utils/format';
+import { FlameIcon } from '../ui/Icons';
 
 function EstadoBadge({ estado }) {
   const info = ESTADO_FACTURA[estado] || { label: estado };
@@ -19,7 +20,9 @@ function EstadoBadge({ estado }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-        isAnulada ? 'bg-brand-100 text-brand-700' : 'bg-emerald-100 text-emerald-700'
+        isAnulada
+          ? 'bg-brasa-suave text-rojo-brasa-oscuro'
+          : 'bg-mostaza-suave text-carbon'
       }`}
     >
       {info.label}
@@ -35,21 +38,23 @@ export default function FacturaView({ factura }) {
   const detalle = factura.detalle || [];
 
   return (
-    <div id="print-area" className="rounded-2xl border border-cream-200 bg-white p-5 shadow-card">
+    <div id="print-area" className="rounded-2xl border border-crema-borde bg-white p-5 shadow-card">
       {/* Encabezado */}
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b-2 border-dashed border-cream-200 pb-4">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b-2 border-dashed border-crema-borde pb-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-600 text-2xl shadow-card">
-            🍗
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-dorado-frito text-rojo-brasa shadow-card">
+            <FlameIcon size={28} />
           </span>
           <div>
-            <p className="font-display text-xl font-bold text-cacao-900">Rosto</p>
-            <p className="text-xs text-cacao-600">Pollo a la brasa · Factura de venta</p>
+            <p className="font-display text-xl font-bold text-carbon">Rosto</p>
+            <p className="text-xs text-carbon/60">Pollo a la brasa · Factura de venta</p>
           </div>
         </div>
         <div className="text-right">
-          <p className="font-display text-lg font-bold text-brand-600">{factura.numero_factura}</p>
-          <p className="text-xs text-cacao-600">{formatFecha(factura.fecha_factura)}</p>
+          <p className="font-display text-lg font-bold text-rojo-brasa">
+            {factura.numero_factura}
+          </p>
+          <p className="text-xs tabular-nums text-carbon/60">{formatFecha(factura.fecha_factura)}</p>
           <div className="mt-1">
             <EstadoBadge estado={factura.estado} />
           </div>
@@ -57,47 +62,54 @@ export default function FacturaView({ factura }) {
       </div>
 
       {/* Datos cliente / usuario / método */}
-      <div className="grid grid-cols-2 gap-3 border-b border-cream-100 py-3 text-sm lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 border-b border-crema-borde py-3 text-sm lg:grid-cols-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-cacao-500">Cliente</p>
-          <p className="font-semibold text-cacao-900">{clienteNombre}</p>
-          {cliente?.documento && <p className="text-xs text-cacao-600">Doc. {cliente.documento}</p>}
-          {cliente?.telefono && <p className="text-xs text-cacao-600">Tel. {cliente.telefono}</p>}
-          {cliente?.correo && <p className="text-xs text-cacao-600">{cliente.correo}</p>}
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/55">Cliente</p>
+          <p className="font-semibold text-carbon">{clienteNombre}</p>
+          {cliente?.documento && <p className="text-xs text-carbon/60">Doc. {cliente.documento}</p>}
+          {cliente?.telefono && <p className="text-xs text-carbon/60">Tel. {cliente.telefono}</p>}
+          {cliente?.correo && <p className="text-xs text-carbon/60">{cliente.correo}</p>}
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-cacao-500">Método de pago</p>
-          <p className="font-semibold text-cacao-900">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/55">
+            Método de pago
+          </p>
+          <p className="font-semibold text-carbon">
             {METODO_PAGO_LABEL[factura.metodo_pago] || factura.metodo_pago}
           </p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-cacao-500">Atendió</p>
-          <p className="font-semibold text-cacao-900">{factura.usuario || '—'}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/55">Atendió</p>
+          <p className="font-semibold text-carbon">{factura.usuario || '—'}</p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-cacao-500">Observaciones</p>
-          <p className="font-semibold text-cacao-900">{factura.observaciones || '—'}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/55">
+            Observaciones
+          </p>
+          <p className="font-semibold text-carbon">{factura.observaciones || '—'}</p>
         </div>
       </div>
 
       {/* Líneas */}
       <table className="mt-4 w-full text-sm">
+        <caption className="sr-only">Detalle de los productos de la factura</caption>
         <thead>
-          <tr className="border-b border-cream-200 text-left text-[11px] font-semibold uppercase tracking-wide text-cacao-500">
-            <th className="py-2 pr-2">Producto</th>
-            <th className="py-2 pr-2 text-center">Cant.</th>
-            <th className="py-2 pr-2 text-right">P. unitario</th>
-            <th className="py-2 text-right">Subtotal</th>
+          <tr className="border-b border-crema-borde text-left text-[11px] font-semibold uppercase tracking-wide text-carbon/55">
+            <th scope="col" className="py-2 pr-2">Producto</th>
+            <th scope="col" className="py-2 pr-2 text-center">Cant.</th>
+            <th scope="col" className="py-2 pr-2 text-right">P. unitario</th>
+            <th scope="col" className="py-2 text-right">Subtotal</th>
           </tr>
         </thead>
         <tbody>
           {detalle.map((d, i) => (
-            <tr key={i} className="border-b border-cream-100">
-              <td className="py-2 pr-2 font-medium text-cacao-900">{d.nombre || d.producto}</td>
-              <td className="py-2 pr-2 text-center text-cacao-700">{d.cantidad}</td>
-              <td className="py-2 pr-2 text-right text-cacao-700">{formatCOP(d.precio_unitario)}</td>
-              <td className="py-2 text-right font-semibold text-cacao-900">
+            <tr key={i} className="border-b border-crema-borde">
+              <td className="py-2 pr-2 font-medium text-carbon">{d.nombre || d.producto}</td>
+              <td className="py-2 pr-2 text-center tabular-nums text-carbon/70">{d.cantidad}</td>
+              <td className="py-2 pr-2 text-right tabular-nums text-carbon/70">
+                {formatCOP(d.precio_unitario)}
+              </td>
+              <td className="py-2 text-right font-semibold tabular-nums text-carbon">
                 {formatCOP(d.subtotal_linea)}
               </td>
             </tr>
@@ -107,23 +119,23 @@ export default function FacturaView({ factura }) {
 
       {/* Totales */}
       <div className="ml-auto mt-4 w-full max-w-xs space-y-1.5 text-sm">
-        <div className="flex justify-between text-cacao-700">
+        <div className="flex justify-between text-carbon/70">
           <span>Subtotal</span>
-          <span className="font-semibold">{formatCOP(factura.subtotal)}</span>
+          <span className="font-semibold tabular-nums">{formatCOP(factura.subtotal)}</span>
         </div>
-        <div className="flex justify-between text-cacao-700">
+        <div className="flex justify-between text-carbon/70">
           <span>IVA</span>
-          <span className="font-semibold">{formatCOP(factura.impuestos)}</span>
+          <span className="font-semibold tabular-nums">{formatCOP(factura.impuestos)}</span>
         </div>
         {Number(factura.descuento) > 0 && (
-          <div className="flex justify-between text-emerald-700">
+          <div className="flex justify-between text-rojo-brasa-oscuro">
             <span>Descuento</span>
-            <span className="font-semibold">− {formatCOP(factura.descuento)}</span>
+            <span className="font-semibold tabular-nums">− {formatCOP(factura.descuento)}</span>
           </div>
         )}
-        <div className="flex justify-between border-t-2 border-dashed border-cream-300 pt-2 font-display text-lg font-bold text-cacao-900">
+        <div className="flex justify-between border-t-2 border-dashed border-crema-borde pt-2 font-display text-lg font-bold text-carbon">
           <span>Total</span>
-          <span className="text-brand-600">{formatCOP(factura.total)}</span>
+          <span className="tabular-nums text-rojo-brasa">{formatCOP(factura.total)}</span>
         </div>
       </div>
     </div>

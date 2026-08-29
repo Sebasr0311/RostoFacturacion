@@ -3,6 +3,7 @@
 // Guarda con FormData (multipart) a POST/PUT /api/productos.
 //   - imagen opcional (drag & drop + preview local).
 //   - En edición, si NO se elige archivo el backend conserva la URL.
+// Títulos por verbo exacto: "Agregar producto" / "Actualizar producto".
 // ============================================================
 
 import { useEffect, useState } from 'react';
@@ -19,6 +20,9 @@ const initialState = {
   id_categoria: '',
   estado: 'ACTIVO',
 };
+
+const inputCls =
+  'mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40';
 
 export default function ProductoModal({ open, onClose, categorias = [], producto = null, onSaved }) {
   const [form, setForm] = useState(initialState);
@@ -55,7 +59,8 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
     const nombre = form.nombre.trim();
     const precio = Number(form.precio);
     if (!nombre) return setError('El nombre del producto es obligatorio.');
-    if (!Number.isFinite(precio) || precio < 0) return setError('Ingresa un precio válido (mayor o igual a 0).');
+    if (!Number.isFinite(precio) || precio < 0)
+      return setError('Ingresa un precio válido (mayor o igual a 0).');
     if (!form.id_categoria) return setError('Selecciona una categoría.');
 
     const fd = new FormData();
@@ -75,9 +80,11 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
       } else {
         await crearProducto(fd);
       }
-      onSaved(isEdit ? 'Producto actualizado correctamente.' : 'Producto creado correctamente.');
+      onSaved(isEdit ? 'Producto actualizado correctamente.' : 'Producto agregado correctamente.');
     } catch (err) {
-      setError(errorMessage(err, 'No se pudo guardar el producto.'));
+      setError(
+        errorMessage(err, 'No se pudo guardar el producto. Verifica la conexión y volvé a intentar.')
+      );
     } finally {
       setSaving(false);
     }
@@ -87,14 +94,18 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
     <Modal
       open={open}
       onClose={onClose}
-      title={isEdit ? 'Editar producto' : 'Nuevo producto'}
+      title={isEdit ? 'Actualizar producto' : 'Agregar producto'}
       size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <ImageDropzone value={imagen?.preview} onFileChange={setImagen} existingUrl={producto?.imagen_url || ''} />
+        <ImageDropzone
+          value={imagen?.preview}
+          onFileChange={setImagen}
+          existingUrl={producto?.imagen_url || ''}
+        />
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="block text-xs font-medium text-cacao-600 sm:col-span-2">
+          <label className="block text-xs font-medium text-carbon/75 sm:col-span-2">
             Nombre *
             <input
               type="text"
@@ -102,12 +113,12 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
               onChange={setField('nombre')}
               maxLength={150}
               placeholder="Ej: ¼ de Pollo"
-              className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition placeholder:text-cacao-500/60 focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+              className={inputCls}
               autoFocus
             />
           </label>
 
-          <label className="block text-xs font-medium text-cacao-600 sm:col-span-2">
+          <label className="block text-xs font-medium text-carbon/75 sm:col-span-2">
             Descripción
             <textarea
               value={form.descripcion}
@@ -115,11 +126,11 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
               maxLength={500}
               rows={2}
               placeholder="Detalle del producto (opcional)"
-              className="mt-1 w-full resize-none rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition placeholder:text-cacao-500/60 focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+              className={`${inputCls} resize-none`}
             />
           </label>
 
-          <label className="block text-xs font-medium text-cacao-600">
+          <label className="block text-xs font-medium text-carbon/75">
             Precio (COP) *
             <input
               type="number"
@@ -128,21 +139,22 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
               value={form.precio}
               onChange={setField('precio')}
               placeholder="18500"
-              className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition placeholder:text-cacao-500/60 focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+              inputMode="numeric"
+              className={`${inputCls} tabular-nums`}
             />
           </label>
 
-          <label className="block text-xs font-medium text-cacao-600">
+          <label className="block text-xs font-medium text-carbon/75">
             Categoría *
             {categorias.length === 0 ? (
-              <span className="mt-1 block rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+              <span className="mt-1 block rounded-lg border border-mostaza-miel/50 bg-mostaza-suave px-3 py-2 text-xs font-medium text-carbon">
                 No hay categorías activas disponibles.
               </span>
             ) : (
               <select
                 value={form.id_categoria}
                 onChange={setField('id_categoria')}
-                className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+                className={inputCls}
               >
                 <option value="">Selecciona…</option>
                 {categorias.map((c) => (
@@ -155,12 +167,12 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
           </label>
 
           {isEdit && (
-            <label className="block text-xs font-medium text-cacao-600 sm:col-span-2">
+            <label className="block text-xs font-medium text-carbon/75 sm:col-span-2">
               Estado
               <select
                 value={form.estado}
                 onChange={setField('estado')}
-                className="mt-1 w-full rounded-lg border border-cream-200 bg-white px-3 py-2 text-sm text-cacao-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-200"
+                className={inputCls}
               >
                 <option value="ACTIVO">Activo</option>
                 <option value="INACTIVO">Inactivo</option>
@@ -170,7 +182,10 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
         </div>
 
         {error && (
-          <p className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700">
+          <p
+            role="alert"
+            className="rounded-lg border border-rojo-brasa/30 bg-brasa-suave px-3 py-2 text-sm font-medium text-rojo-brasa-oscuro"
+          >
             {error}
           </p>
         )}
@@ -180,17 +195,17 @@ export default function ProductoModal({ open, onClose, categorias = [], producto
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="rounded-xl border border-cream-200 bg-white px-4 py-2 text-sm font-semibold text-cacao-800 shadow-sm transition hover:bg-cream-50 disabled:opacity-60"
+            className="rounded-xl border border-crema-borde bg-white px-4 py-2 text-sm font-semibold text-carbon shadow-sm transition hover:bg-crema-suave-osc disabled:opacity-60"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={saving || categorias.length === 0}
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-rojo-brasa px-5 py-2 text-sm font-semibold text-white shadow-brasa transition hover:bg-rojo-brasa-oscuro disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving && <Spinner size={16} light />}
-            {isEdit ? 'Guardar cambios' : 'Crear producto'}
+            {isEdit ? 'Guardar cambios' : 'Agregar producto'}
           </button>
         </div>
       </form>

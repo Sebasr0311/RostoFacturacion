@@ -11,6 +11,7 @@
 // ============================================================
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { listarProductos } from '../services/productoService';
 import { listarCategorias } from '../services/categoriaService';
@@ -26,10 +27,15 @@ import { ProductCardSkeleton } from '../components/ui/Skeleton';
 import { ShoppingCartIcon, PackageIcon } from '../components/ui/Icons';
 import { formatFechaSola, round2 } from '../utils/format';
 
+// Mensaje de error estándar de conexión (accionable, con solución).
+const MSG_SERVER =
+  'No pudimos conectarnos con el servidor. Verifica que la API esté disponible y volvé a intentar.';
+
 const inicialCliente = { nombre: '', documento: '', telefono: '' };
 
 export default function PosPage() {
   const { usuario } = useAuth();
+  const navigate = useNavigate();
 
   // ---- Catálogo ----
   const [productos, setProductos] = useState([]);
@@ -61,7 +67,7 @@ export default function PosPage() {
       setProductos(prods);
       setCategorias(cats);
     } catch (err) {
-      setCatalogError(errorMessage(err, 'No se pudo cargar el catálogo.'));
+      setCatalogError(MSG_SERVER);
       setProductos([]);
       setCategorias([]);
     } finally {
@@ -153,7 +159,7 @@ export default function PosPage() {
       vaciarCarrito();
       toast.success(`Factura ${factura.numero_factura} generada.`);
     } catch (err) {
-      toast.error(errorMessage(err, 'No se pudo generar la factura.'));
+      toast.error(errorMessage(err, MSG_SERVER));
     } finally {
       setGenerando(false);
     }
@@ -175,26 +181,29 @@ export default function PosPage() {
     [productos]
   );
 
+  const nombreCajero = usuario?.nombre_completo?.split(' ')[0] || '';
+
   return (
     <div className="-mx-4 sm:-mx-6 lg:-mx-8 lg:pr-[416px]">
       {/* Encabezado del POS */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold text-cacao-900">Punto de venta</h1>
-          <p className="text-sm text-cacao-600">
-            {formatFechaSola(new Date())} · Hola, {usuario?.nombre_completo?.split(' ')[0] || 'usuario'} 👋
+          <h1 className="font-display text-3xl font-bold text-carbon">Punto de venta</h1>
+          <p className="mt-0.5 text-sm text-carbon/65">
+            {formatFechaSola(new Date())}
+            {nombreCajero ? ` · Hola, ${nombreCajero}` : ''}
           </p>
         </div>
         {/* Botón carrito móvil/tablet */}
         <button
           type="button"
           onClick={() => setCartOpen(true)}
-          className="relative inline-flex items-center gap-2 rounded-xl bg-cacao-900 px-4 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-cacao-950 lg:hidden"
+          className="relative inline-flex min-h-11 items-center gap-2 rounded-xl bg-carbon px-4 py-2.5 text-sm font-semibold text-crema-suave shadow-card transition hover:bg-carbon-claro active:scale-95 motion-reduce:active:scale-100 lg:hidden"
         >
           <ShoppingCartIcon size={18} />
           Carrito
           {cartCount > 0 && (
-            <span className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand-600 px-1 text-xs font-bold text-white">
+            <span className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-dorado-frito px-1 text-xs font-bold tabular-nums text-carbon">
               {cartCount}
             </span>
           )}
@@ -205,7 +214,7 @@ export default function PosPage() {
         <>
           <div className="mb-4 flex gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-9 w-24 animate-pulse rounded-full bg-cream-200/80" />
+              <div key={i} className="h-11 w-24 motion-reduce:animate-none animate-pulse rounded-full bg-crema-suave-osc" />
             ))}
           </div>
           <ProductCardSkeleton count={8} />
@@ -219,7 +228,7 @@ export default function PosPage() {
             <button
               type="button"
               onClick={cargarCatalogo}
-              className="rounded-xl bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+              className="rounded-xl bg-rojo-brasa px-5 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-rojo-brasa-oscuro"
             >
               Reintentar
             </button>
@@ -228,8 +237,17 @@ export default function PosPage() {
       ) : productos.length === 0 ? (
         <EmptyState
           icon={<PackageIcon size={26} />}
-          title="No hay productos activos"
-          message="Agrega productos desde el módulo de Productos para comenzar a facturar."
+          title="Todavía no hay productos"
+          message="Agrega el primer producto para comenzar a facturar desde el punto de venta."
+          action={
+            <button
+              type="button"
+              onClick={() => navigate('/productos')}
+              className="rounded-xl bg-carbon px-5 py-2.5 text-sm font-semibold text-crema-suave shadow-card transition hover:bg-carbon-claro"
+            >
+              Ir a productos
+            </button>
+          }
         />
       ) : (
         <>
@@ -245,8 +263,8 @@ export default function PosPage() {
           {productosActivos.length === 0 ? (
             <EmptyState
               icon={<PackageIcon size={26} />}
-              title="Sin productos en esta categoría"
-              message="Prueba con otra categoría o agrega productos nuevos."
+              title="Esta categoría aún no tiene productos"
+              message="Probá con otra categoría del catálogo."
             />
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
@@ -285,11 +303,11 @@ export default function PosPage() {
         <button
           type="button"
           onClick={() => setCartOpen(true)}
-          className="fixed bottom-5 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-soft transition hover:bg-brand-700 active:scale-95 lg:hidden"
+          className="fixed bottom-5 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-rojo-brasa text-white shadow-brasa transition hover:bg-rojo-brasa-oscuro active:scale-95 motion-reduce:active:scale-100 lg:hidden"
           aria-label="Abrir carrito"
         >
           <ShoppingCartIcon size={24} />
-          <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-cacao-900 px-1 text-xs font-bold">
+          <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-carbon px-1 text-xs font-bold tabular-nums text-dorado-frito">
             {cartCount}
           </span>
         </button>

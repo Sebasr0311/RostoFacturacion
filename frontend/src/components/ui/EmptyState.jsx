@@ -1,5 +1,6 @@
 // ============================================================
-// components/ui/EmptyState.jsx — Estado vacío con mensaje claro.
+// components/ui/EmptyState.jsx — Estado vacío con mensaje claro
+// e invitación a actuar (copy accionable, nunca "sin datos").
 // ============================================================
 
 export default function EmptyState({
@@ -9,15 +10,15 @@ export default function EmptyState({
   action,
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-cream-200 bg-white/60 px-6 py-14 text-center">
+    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-crema-borde bg-white/70 px-6 py-14 text-center">
       {icon && (
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-cream-100 text-cacao-500">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-mostaza-suave text-dorado-oscuro">
           {icon}
         </span>
       )}
       <div>
-        <h3 className="font-display text-base font-semibold text-cacao-900">{title}</h3>
-        {message && <p className="mt-1 max-w-sm text-sm text-cacao-600">{message}</p>}
+        <h3 className="font-display text-lg font-semibold text-carbon">{title}</h3>
+        {message && <p className="mx-auto mt-1 max-w-md text-sm text-carbon/70">{message}</p>}
       </div>
       {action}
     </div>

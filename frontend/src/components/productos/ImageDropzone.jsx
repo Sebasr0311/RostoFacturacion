@@ -3,6 +3,7 @@
 // drag & drop + preview (FileReader) antes de enviar al servidor.
 //
 // Contrato backend: campo multipart 'imagen' (multer, 5 MB, image/*).
+// Errores accionables con role="alert" para lectores de pantalla.
 // ============================================================
 
 import { useRef, useState } from 'react';
@@ -22,12 +23,12 @@ export default function ImageDropzone({ value, onFileChange, existingUrl = '' })
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setError('Solo se permiten archivos de imagen.');
+      setError('Solo se permiten archivos de imagen. Elegí un PNG, JPG o WEBP.');
       onFileChange(null);
       return;
     }
     if (file.size > IMAGEN_MAX_BYTES) {
-      setError(`La imagen supera el tamaño máximo (${IMAGEN_MAX_MB} MB).`);
+      setError(`La imagen supera el tamaño máximo (${IMAGEN_MAX_MB} MB). Elegí un archivo más liviano.`);
       onFileChange(null);
       return;
     }
@@ -66,24 +67,24 @@ export default function ImageDropzone({ value, onFileChange, existingUrl = '' })
         }}
         className={`group relative flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed p-4 text-center transition ${
           dragOver
-            ? 'border-brand-500 bg-brand-50'
-            : 'border-cream-300 bg-cream-50 hover:border-brand-400 hover:bg-cream-100/60'
+            ? 'border-rojo-brasa bg-brasa-suave'
+            : 'border-crema-borde bg-crema-suave hover:border-dorado-frito hover:bg-crema-suave-osc'
         }`}
       >
         {preview ? (
           <>
-            <img src={preview} alt="Vista previa" className="max-h-48 rounded-lg object-contain shadow-card" />
-            <p className="text-xs font-medium text-cacao-600">
-              Vista previa — click para reemplazar o arrastra otra imagen
+            <img src={preview} alt="Vista previa de la imagen del producto" className="max-h-48 rounded-lg object-contain shadow-card" />
+            <p className="text-xs font-medium text-carbon/70">
+              Vista previa — elegí otro archivo para reemplazarla
             </p>
           </>
         ) : (
           <>
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-600 shadow-card">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-dorado-oscuro shadow-card">
               <UploadIcon size={22} />
             </span>
-            <p className="text-sm font-semibold text-cacao-800">Arrastra la imagen aquí o haz click</p>
-            <p className="text-xs text-cacao-500">PNG, JPG o WEBP · máx. {IMAGEN_MAX_MB} MB</p>
+            <p className="text-sm font-semibold text-carbon">Arrastrá la imagen aquí o elegí un archivo</p>
+            <p className="text-xs text-carbon/60">PNG, JPG o WEBP · máx. {IMAGEN_MAX_MB} MB (opcional)</p>
           </>
         )}
       </div>
@@ -96,13 +97,17 @@ export default function ImageDropzone({ value, onFileChange, existingUrl = '' })
         onChange={(e) => handleFiles(e.target.files)}
       />
 
-      {error && <p className="mt-1.5 text-xs font-medium text-brand-600">{error}</p>}
+      {error && (
+        <p role="alert" className="mt-1.5 text-xs font-medium text-rojo-brasa-oscuro">
+          {error}
+        </p>
+      )}
 
       {preview && (
         <button
           type="button"
           onClick={removeImage}
-          className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-cream-200 bg-white px-3 py-1.5 text-xs font-semibold text-cacao-700 transition hover:border-brand-300 hover:text-brand-600"
+          className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-crema-borde bg-white px-3 py-1.5 text-xs font-semibold text-carbon/75 transition hover:border-rojo-brasa/40 hover:text-rojo-brasa-oscuro"
         >
           <TrashIcon size={14} />
           Quitar imagen

@@ -5,7 +5,7 @@
 export default function Spinner({ size = 20, light = false, className = '' }) {
   return (
     <svg
-      className={`inline-block animate-spin ${light ? 'text-white' : 'text-brand-600'} ${className}`}
+      className={`inline-block animate-spin ${light ? 'text-white' : 'text-rojo-brasa'} ${className}`}
       width={size}
       height={size}
       viewBox="0 0 24 24"

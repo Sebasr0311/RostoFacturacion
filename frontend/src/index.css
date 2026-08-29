@@ -1,84 +1,166 @@
 /* ============================================================
-   index.css — Tailwind CSS v4 (CSS-first) + design tokens Rosto.
-   Paleta cálida de comida: rojo marca / naranja / crema / cacao.
+   index.css — Sistema de diseño "Rosto · Brasa y Dorado"
+   (Tailwind CSS v4, CSS-first) — ver frontend/DESIGN.md.
+
+   Paleta construida desde el producto (pollo a la brasa):
+   - carbon      : carbón de la parrilla (texto, sidebar, neutros oscuros)
+   - crema-suave : fondo cálido de la mesa
+   - dorado-frito: la fritura dorada (identidad dominante)
+   - rojo-brasa  : la brasa de la salsa picante (acción, precios, errores)
+   - mostaza-miel: la salsa de mostaza y miel (secundario)
+
+   Tipografía: Fraunces Variable (display) + Inter (cuerpo/UI).
+   Motion: duraciones <= 300ms, easing suave, siempre con
+   contraparte motion-reduce.
    ============================================================ */
 
 @import 'tailwindcss';
 
 @theme {
-  /* Tipografía: Poppins (display) + Inter (cuerpo) */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Poppins', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* ---------- Tipografía ---------- */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Fraunces Variable', 'Fraunces', Georgia, 'Times New Roman',
+    serif;
 
-  /* Marca — rojo cálido #E11D2A */
-  --color-brand-50: #fef2f3;
-  --color-brand-100: #fde3e5;
-  --color-brand-200: #fbccd0;
-  --color-brand-300: #f7a3aa;
-  --color-brand-400: #f1727d;
-  --color-brand-500: #e64651;
-  --color-brand-600: #e11d2a;
-  --color-brand-700: #b91621;
-  --color-brand-800: #98141e;
-  --color-brand-900: #7f151f;
-  --color-brand-950: #45070c;
+  /* ---------- Paleta "Brasa y Dorado" ---------- */
+  --color-crema-suave: #fbf3e7; /* fondo general */
+  --color-crema-suave-osc: #f4e8d5; /* superficies elevadas */
+  --color-crema-borde: #e9d9bc; /* bordes suaves (decorativos) */
+  --color-carbon: #2a2320; /* texto principal / sidebar */
+  --color-carbon-claro: #3d332c; /* superficie elevada sobre carbon */
+  --color-dorado-frito: #e8a33d; /* identidad dominante */
+  --color-dorado-oscuro: #c97f1f; /* variante profunda del dorado */
+  --color-rojo-brasa: #c43d1e; /* acento de acción / precios */
+  --color-rojo-brasa-oscuro: #a43217; /* hover primario */
+  --color-mostaza-miel: #c9a227; /* secundario (estados, badges) */
+  --color-mostaza-suave: #f0e0ba; /* fondo de badge mostaza */
+  --color-brasa-suave: #f9e3d9; /* fondo de badge brasa / error */
 
-  /* Fondo cálido — crema */
-  --color-cream-50: #fff9f0;
-  --color-cream-100: #fdf0e0;
-  --color-cream-200: #f9dfc0;
-  --color-cream-300: #f4c999;
+  /* ---------- Sombras ---------- */
+  --shadow-soft: 0 16px 40px -16px rgb(42 35 32 / 0.35);
+  --shadow-card: 0 4px 16px -6px rgb(42 35 32 / 0.18);
+  --shadow-brasa: 0 8px 24px -8px rgb(196 61 30 / 0.45);
 
-  /* Texto marrón oscuro — cacao */
-  --color-cacao-500: #8a6549;
-  --color-cacao-600: #7c5a42;
-  --color-cacao-700: #6b4932;
-  --color-cacao-800: #573a29;
-  --color-cacao-900: #3f2a1e;
-  --color-cacao-950: #2a1a10;
+  /* ---------- Motion (<= 300 ms, easing suave) ---------- */
+  /* El "pop" de la tarjeta al agregar (firma a) se hace con
+     Web Animations API en ProductCard (mismo easing y duración);
+     aquí viven los tokens CSS usados por los componentes. */
+  --ease-rosto: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-cart-bump: cart-bump 300ms var(--ease-rosto);
+  --animate-pop-in: pop-in 300ms var(--ease-rosto);
+  --animate-toast-in: toast-in 250ms var(--ease-rosto);
+  --animate-fade-in: fade-in 200ms ease-out;
 
-  /* Sombras suaves */
-  --shadow-soft: 0 12px 32px -12px rgb(63 42 30 / 0.28);
-  --shadow-card: 0 4px 14px -6px rgb(63 42 30 / 0.16);
+  @keyframes cart-bump {
+    0% { transform: scale(1) rotate(0deg); }
+    35% { transform: scale(1.25) rotate(-8deg); }
+    65% { transform: scale(0.92) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  @keyframes pop-in {
+    0% { opacity: 0; transform: scale(0.6); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 }
 
 @layer base {
   html {
     font-family: var(--font-sans);
+    scroll-behavior: smooth;
   }
 
   body {
-    background-color: var(--color-cream-50);
-    color: var(--color-cacao-900);
+    background-color: var(--color-crema-suave);
+    /* Calor sutil de brasa en la esquina superior derecha */
+    background-image: radial-gradient(
+      1100px 560px at 88% -10%,
+      rgb(232 163 61 / 0.09),
+      transparent 62%
+    );
+    background-attachment: fixed;
+    color: var(--color-carbon);
     -webkit-font-smoothing: antialiased;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+  }
+
   ::selection {
-    background-color: var(--color-brand-600);
-    color: #fff;
+    background-color: var(--color-dorado-frito);
+    color: var(--color-carbon);
   }
 }
 
-/* Scrollbars finos y discretos */
+/* ---------- Foco de teclado SIEMPRE visible ----------
+   Anillo 3px + offset. Sobre superficies claras usa rojo-brasa
+   (4.73:1 sobre crema); dentro de superficies oscuras (sidebar,
+   panel de marca) cambia a dorado-frito (7.16:1 sobre carbon). */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-rojo-brasa);
+  outline-offset: 2px;
+}
+
+aside :where(a, button):focus-visible,
+.on-dark :where(a, button, input, select, textarea):focus-visible {
+  outline-color: var(--color-dorado-frito);
+}
+
+/* Botones primarios rojo-brasa: el anillo se dibuja sobre el fondo
+   claro circundante, que ya contrasta (rojo sobre crema 4.73:1). */
+
+/* ---------- prefers-reduced-motion ----------
+   Los estados animados se recortan solo en transiciones (no
+   rompe animaciones esenciales como el spinner). Las animaciones
+   no esenciales llevan la variante motion-safe en el componente. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Scrollbars finos ---------- */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-cream-300) transparent;
+  scrollbar-color: var(--color-crema-borde) transparent;
 }
 *::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 *::-webkit-scrollbar-thumb {
-  background: var(--color-cream-300);
+  background: var(--color-crema-borde);
   border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-dorado-oscuro);
 }
 
 /* ============================================================
-   Impresión: al hacer Ctrl+P se imprime SOLO el área de la factura
-   (#print-area) y se oculta el resto de la app (sidebar, cart, etc.).
-   El botón "Imprimir" del modal usa el PDF del servidor; esta regla
-   es el respaldo para imprimir la factura en pantalla.
+   Impresión: Ctrl+P imprime SOLO el área de la factura
+   (#print-area) y oculta el resto de la app. El botón "Imprimir"
+   del modal usa el PDF del servidor; esta regla es el respaldo
+   para imprimir la factura en pantalla.
    ============================================================ */
 @media print {
   body {
