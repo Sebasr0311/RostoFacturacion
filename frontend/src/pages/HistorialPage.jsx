@@ -212,7 +212,7 @@ export default function HistorialPage() {
           />
         </div>
         {/* Exportar rango */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="date"
             value={rango.desde}

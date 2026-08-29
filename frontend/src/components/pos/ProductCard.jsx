@@ -87,8 +87,8 @@ export default function ProductCard({ producto, onAdd }) {
           </svg>
           Añadido
         </span>
-        <span className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-dorado-frito text-carbon shadow-card transition group-hover:bg-dorado-oscuro group-focus-visible:bg-dorado-oscuro">
-          <PlusIcon size={18} />
+        <span className="absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full bg-dorado-frito text-carbon shadow-card transition group-hover:bg-dorado-oscuro group-focus-visible:bg-dorado-oscuro">
+          <PlusIcon size={20} />
         </span>
       </div>
       <div className="mt-3 flex flex-1 flex-col">
