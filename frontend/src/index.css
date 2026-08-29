@@ -1,0 +1,106 @@
+/* ============================================================
+   index.css — Tailwind CSS v4 (CSS-first) + design tokens Rosto.
+   Paleta cálida de comida: rojo marca / naranja / crema / cacao.
+   ============================================================ */
+
+@import 'tailwindcss';
+
+@theme {
+  /* Tipografía: Poppins (display) + Inter (cuerpo) */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Poppins', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Marca — rojo cálido #E11D2A */
+  --color-brand-50: #fef2f3;
+  --color-brand-100: #fde3e5;
+  --color-brand-200: #fbccd0;
+  --color-brand-300: #f7a3aa;
+  --color-brand-400: #f1727d;
+  --color-brand-500: #e64651;
+  --color-brand-600: #e11d2a;
+  --color-brand-700: #b91621;
+  --color-brand-800: #98141e;
+  --color-brand-900: #7f151f;
+  --color-brand-950: #45070c;
+
+  /* Fondo cálido — crema */
+  --color-cream-50: #fff9f0;
+  --color-cream-100: #fdf0e0;
+  --color-cream-200: #f9dfc0;
+  --color-cream-300: #f4c999;
+
+  /* Texto marrón oscuro — cacao */
+  --color-cacao-500: #8a6549;
+  --color-cacao-600: #7c5a42;
+  --color-cacao-700: #6b4932;
+  --color-cacao-800: #573a29;
+  --color-cacao-900: #3f2a1e;
+  --color-cacao-950: #2a1a10;
+
+  /* Sombras suaves */
+  --shadow-soft: 0 12px 32px -12px rgb(63 42 30 / 0.28);
+  --shadow-card: 0 4px 14px -6px rgb(63 42 30 / 0.16);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background-color: var(--color-cream-50);
+    color: var(--color-cacao-900);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-600);
+    color: #fff;
+  }
+}
+
+/* Scrollbars finos y discretos */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-cream-300) transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-cream-300);
+  border-radius: 9999px;
+}
+
+/* ============================================================
+   Impresión: al hacer Ctrl+P se imprime SOLO el área de la factura
+   (#print-area) y se oculta el resto de la app (sidebar, cart, etc.).
+   El botón "Imprimir" del modal usa el PDF del servidor; esta regla
+   es el respaldo para imprimir la factura en pantalla.
+   ============================================================ */
+@media print {
+  body {
+    background: #fff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #print-area,
+  #print-area * {
+    visibility: visible;
+  }
+
+  #print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    margin: 0;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+}
