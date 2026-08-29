@@ -10,7 +10,10 @@
  */
 function oracleCode(err) {
   if (!err) return null;
-  if (typeof err.errorNum === 'number') return `ORA-${err.errorNum}`;
+  if (typeof err.errorNum === 'number' && err.errorNum > 0) {
+    // node-oracledb numeriza el ORA-xxxxx sin ceros a la izquierda (ej. ORA-1).
+    return `ORA-${String(err.errorNum).padStart(5, '0')}`;
+  }
   if (typeof err.message === 'string') {
     const m = err.message.match(/ORA-(\d{5})/);
     return m ? `ORA-${m[1]}` : null;
