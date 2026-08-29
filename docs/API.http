@@ -1,0 +1,299 @@
+# ============================================================
+# Rosto Facturación — Colección de pruebas de la API REST
+# ============================================================
+# Cómo usar (extensión REST Client de VS Code):
+#   1. Instala la extensión "REST Client" en VS Code.
+#   2. Asegúrate de que el backend esté corriendo (npm run dev
+#      en backend/) y que la BD Oracle esté preparada con los
+#      scripts backend/sql/schema.sql y backend/sql/seed.sql.
+#   3. Ejecuta en orden:
+#        - Primero el LOGIN (marca # @name login): captura el token.
+#        - Luego el HEALTH (público).
+#        - Después las peticiones protegidas (usarán el token).
+#
+# El token se captura de la respuesta del login y se aplica a las
+# peticiones protegidas mediante:  Authorization: Bearer {{token}}
+#
+# Nota: las peticiones que crean recursos dependen de que existan
+# datos previos (ej. crear un producto requiere un id_categoria).
+# ============================================================
+
+# ---- Variable de entorno: base URL local de la API ----
+@host = http://localhost:4000/api
+
+# ============================================================
+# AUTENTICACIÓN
+# ============================================================
+
+### 1. LOGIN — genera el token JWT (requerido antes que el resto)
+# Credenciales del usuario administrador creado por seed.sql
+# (admin@rosto.com / admin123).
+# @name login
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@rosto.com",
+  "password": "admin123"
+}
+
+### 2. LOGIN con password incorrecta — debe responder 401
+# Caso de error: credenciales inválidas.
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin@rosto.com",
+  "password": "password-incorrecta"
+}
+
+### 3. REGISTRAR usuario nuevo (solo ADMIN)
+# Crea un usuario con rol CAJERO (o ADMIN). Protegido por JWT y adminOnly.
+POST {{host}}/auth/registrar
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre_completo": "Cajero Ejemplo",
+  "correo": "cajero@rosto.com",
+  "password": "cajero123",
+  "rol": "CAJERO"
+}
+
+# ============================================================
+# HEALTH CHECK
+# ============================================================
+
+### 4. HEALTH — verifica que la API y la BD estén disponibles
+# Endpoint público, no requiere token.
+GET {{host}}/health
+
+# ============================================================
+# CATEGORÍAS (GET es autenticado; POST/PUT/DELETE requieren ADMIN)
+# ============================================================
+
+### 5. LISTAR categorías — todas
+GET {{host}}/categorias
+Authorization: Bearer {{token}}
+
+### 6. LISTAR categorías — filtradas por estado (ACTIVO)
+GET {{host}}/categorias?estado=ACTIVO
+Authorization: Bearer {{token}}
+
+### 7. CREAR categoría (ADMIN)
+POST {{host}}/categorias
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre": "Postres",
+  "estado": "ACTIVO"
+}
+
+### 8. ACTUALIZAR categoría (ADMIN) — reemplaza {id} por un id real
+# Para listar los ids: GET {{host}}/categorias
+PUT {{host}}/categorias/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre": "Postres y Dulces",
+  "estado": "ACTIVO"
+}
+
+### 9. ELIMINAR categoría (ADMIN) — soft delete (estado -> INACTIVO)
+# Reemplaza {id} por un id real.
+DELETE {{host}}/categorias/1
+Authorization: Bearer {{token}}
+
+# ============================================================
+# PRODUCTOS (GET es autenticado; POST/PUT/DELETE requieren ADMIN).
+# POST/PUT usan multipart/form-data con el campo "imagen" (opcional).
+# ============================================================
+
+### 10. LISTAR productos — todos
+GET {{host}}/productos
+Authorization: Bearer {{token}}
+
+### 11. LISTAR productos — filtrados por estado y categoría
+# id_categoria: categoría de la que quieres los productos (1 = Pollo Frito).
+GET {{host}}/productos?estado=ACTIVO&id_categoria=1
+Authorization: Bearer {{token}}
+
+### 12. OBTENER un producto por id — reemplaza {id} por un id real
+# Para listar los ids: GET {{host}}/productos
+GET {{host}}/productos/1
+Authorization: Bearer {{token}}
+
+### 13. CREAR producto con imagen (ADMIN) — multipart, campo 'imagen'
+# Campos de formulario:
+#   nombre         (texto)
+#   descripcion    (texto, opcional)
+#   precio         (número, COP)
+#   id_categoria   (número, debe existir en categorias)
+#   estado         (ACTIVO | INACTIVO, opcional, default ACTIVO)
+#   imagen         (archivo de imagen, opcional, máx 5 MB)
+# Sustituye la ruta absoluta del archivo por una imagen real de tu equipo.
+POST {{host}}/productos
+Content-Type: multipart/form-data; boundary=----RostoBoundary
+Authorization: Bearer {{token}}
+
+------RostoBoundary
+Content-Disposition: form-data; name="nombre"
+
+Alitas BBQ
+------RostoBoundary
+Content-Disposition: form-data; name="descripcion"
+
+Alitas de pollo glaseadas con salsa BBQ.
+------RostoBoundary
+Content-Disposition: form-data; name="precio"
+
+15000
+------RostoBoundary
+Content-Disposition: form-data; name="id_categoria"
+
+1
+------RostoBoundary
+Content-Disposition: form-data; name="estado"
+
+ACTIVO
+------RostoBoundary
+Content-Disposition: form-data; name="imagen"; filename="alitas.jpg"
+Content-Type: image/jpeg
+
+< C:/Users/JUAN/Pictures/alitas.jpg
+------RostoBoundary--
+
+### 14. CREAR producto SIN imagen (ADMIN) — se guarda como URL directa
+# En modo IMAGE_STORAGE=url, imagen_url es la URL que se persiste.
+POST {{host}}/productos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nombre": "Adición de Salsa",
+  "descripcion": "Porción adicional de salsa de la casa.",
+  "precio": 2000,
+  "id_categoria": 4,
+  "estado": "ACTIVO",
+  "imagen_url": "https://ejemplo.com/salsa.png"
+}
+
+### 15. ACTUALIZAR producto (ADMIN) — reemplaza {id} por un id real
+# multipart con el mismo contrato que crear (campo 'imagen' opcional).
+PUT {{host}}/productos/1
+Content-Type: multipart/form-data; boundary=----RostoBoundary
+Authorization: Bearer {{token}}
+
+------RostoBoundary
+Content-Disposition: form-data; name="nombre"
+
+Cuarto de Pollo Especial
+------RostoBoundary
+Content-Disposition: form-data; name="precio"
+
+20000
+------RostoBoundary--
+
+### 16. ELIMINAR producto (ADMIN) — soft delete (estado -> INACTIVO)
+# Reemplaza {id} por un id real.
+DELETE {{host}}/productos/1
+Authorization: Bearer {{token}}
+
+# ============================================================
+# FACTURAS (todas requieren autenticación).
+# El cálculo de precios, IVA, descuento y total lo hace el backend.
+# ============================================================
+
+### 17. CREAR factura en EFECTIVO, con cliente y descuento
+# items: [{ id_producto, cantidad }]. El backend toma el precio REAL
+# de cada producto desde la BD (no confía en precios del cliente).
+# cliente es opcional; si indicas documento y ya existe, se reutiliza;
+# si no, se crea. metodo_pago: EFECTIVO | TARJETA | TRANSFERENCIA | MIXTO.
+# descuento: monto absoluto en COP (default 0).
+POST {{host}}/facturas
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "cliente": {
+    "nombre": "Cliente Prueba",
+    "documento": "CC-999888777",
+    "telefono": "3000000000",
+    "correo": "prueba@correo.com"
+  },
+  "items": [
+    { "id_producto": 1, "cantidad": 2 },
+    { "id_producto": 5, "cantidad": 1 }
+  ],
+  "metodo_pago": "EFECTIVO",
+  "descuento": 1000,
+  "observaciones": "Factura de prueba desde la colección .http"
+}
+
+### 18. CREAR factura mínima (sin cliente ni descuento)
+POST {{host}}/facturas
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "items": [
+    { "id_producto": 2, "cantidad": 1 }
+  ],
+  "metodo_pago": "TRANSFERENCIA"
+}
+
+### 19. LISTAR facturas — todas
+GET {{host}}/facturas
+Authorization: Bearer {{token}}
+
+### 20. LISTAR facturas — filtradas por estado (PAGADA)
+GET {{host}}/facturas?estado=PAGADA
+Authorization: Bearer {{token}}
+
+### 21. LISTAR facturas — de una fecha concreta (YYYY-MM-DD)
+GET {{host}}/facturas?fecha=2026-08-29
+Authorization: Bearer {{token}}
+
+### 22. OBTENER detalle completo de una factura — reemplaza {id}
+# Cabecera + datos del cliente + líneas de detalle.
+# Toma el id_factura de la respuesta del POST (17) o del listado (19).
+GET {{host}}/facturas/1
+Authorization: Bearer {{token}}
+
+### 23. OBTENER PDF de una factura — reemplaza {id}
+# Devuelve un PDF (application/pdf). Al ejecutarlo en REST Client se
+# guarda como archivo.
+GET {{host}}/facturas/1/pdf
+Authorization: Bearer {{token}}
+
+### 24. ANULAR una factura — reemplaza {id}
+# Solo se puede anular si está en estado PAGADA. Si ya está ANULADA
+# o no existe, responde 404/409.
+PUT {{host}}/facturas/1/anular
+Authorization: Bearer {{token}}
+
+# ============================================================
+# REPORTES (todas requieren autenticación).
+# ============================================================
+
+### 25. REPORTE ventas del día — resumen JSON
+# Devuelve { resumen, facturas, productos } para el día actual de la BD.
+GET {{host}}/reportes/ventas-dia
+Authorization: Bearer {{token}}
+
+### 26. REPORTE ventas del día — exportar Excel (.xlsx, 3 hojas)
+# Devuelve el archivo reporte-ventas.xlsx (Resumen, Detalle Facturas,
+# Detalle Productos). Al ejecutarlo en REST Client se guarda como archivo.
+GET {{host}}/reportes/ventas-dia/excel
+Authorization: Bearer {{token}}
+
+### 27. REPORTE ventas por rango — resumen JSON (YYYY-MM-DD)
+# desde y hasta son obligatorios; si faltan o tienen otro formato, 400.
+GET {{host}}/reportes/ventas-rango?desde=2026-08-01&hasta=2026-08-29
+Authorization: Bearer {{token}}
+
+### 28. REPORTE ventas por rango — exportar Excel (.xlsx, 3 hojas)
+GET {{host}}/reportes/ventas-rango/excel?desde=2026-08-01&hasta=2026-08-29
+Authorization: Bearer {{token}}

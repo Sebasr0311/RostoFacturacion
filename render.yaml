@@ -1,0 +1,50 @@
+# Blueprint de Render — despliegue del backend como Web Service.
+# Usa "Blueprint" en Render (New + -> Blueprint) apuntando a este repositorio,
+# o crea un Web Service manual apuntando al rootdir /backend.
+#
+# Las variables con `sync: false` se solicitan al momento del despliegue.
+# El Oracle Wallet NO va en el repositorio: súbelo como archivo secreto en
+# Render y pasa su directorio de extracción en ORACLE_WALLET_DIR.
+services:
+  - type: web
+    name: rosto-facturacion-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    plan: free
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: PORT
+        value: 4000
+      # ---- Oracle Autonomous Database ----
+      - key: ORACLE_USER
+        sync: false
+      - key: ORACLE_PASSWORD
+        sync: false
+      - key: ORACLE_CONNECT_STRING
+        sync: false # ej: pollo_adw_high (nombre de servicio del wallet)
+      - key: ORACLE_WALLET_DIR
+        sync: false # ej: /etc/secrets/wallet (directorio del wallet extraído)
+      # ---- Autenticación ----
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      # ---- Imágenes / Cloudinary ----
+      - key: IMAGE_STORAGE
+        value: cloudinary
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      # ---- CORS (dominio GitHub Pages) ----
+      - key: CORS_ORIGIN
+        sync: false # ej: https://sebasr0311.github.io
+      # ---- Impuestos ----
+      - key: IMPUESTO_PORCENTAJE
+        value: 19
