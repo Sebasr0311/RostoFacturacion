@@ -22,53 +22,72 @@ VALUES (
 );
 
 -- ------------------------------------------------------------
--- 2) CATEGORÍAS
+-- 2) CATEGORÍAS — Menú oficial Rosto (carta)
 -- ------------------------------------------------------------
-INSERT INTO categorias (nombre, estado) VALUES ('Pollo Frito', 'ACTIVO');
-INSERT INTO categorias (nombre, estado) VALUES ('Combos', 'ACTIVO');
-INSERT INTO categorias (nombre, estado) VALUES ('Bebidas', 'ACTIVO');
-INSERT INTO categorias (nombre, estado) VALUES ('Adicionales', 'ACTIVO');
+INSERT INTO categorias (nombre, estado) VALUES ('Tenders', 'ACTIVO');
+INSERT INTO categorias (nombre, estado) VALUES ('Tenders Combo', 'ACTIVO');
+INSERT INTO categorias (nombre, estado) VALUES ('Hamburguesas', 'ACTIVO');
+INSERT INTO categorias (nombre, estado) VALUES ('Chicken Dog', 'ACTIVO');
 
 -- ------------------------------------------------------------
--- 3) PRODUCTOS (precios realistas en COP)
+-- 3) PRODUCTOS — Menú oficial Rosto (carta), precios en COP.
 --    id_categoria se resuelve por nombre para no depender de
 --    los ids concretos de la identity.
+--    Los combos son SKU separados (la arquitectura no soporta
+--    variantes): nombre con sufijo "Combo" y contenido indicado
+--    en la descripción según la carta.
 -- ------------------------------------------------------------
--- Pollo Frito
+-- Tenders
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('¼ de Pollo', 'Cuarto de pollo a la brasa con papas y ensalada.', 18500,
-        (SELECT id_categoria FROM categorias WHERE nombre = 'Pollo Frito'), 'ACTIVO');
+VALUES ('Tenders X4', 'Tenders de pechuga de pollo crispy, con papas a la francesa, más una tostada de pan y salsa especial de la casa.', 20900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Tenders'), 'ACTIVO');
 
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('½ de Pollo', 'Medio pollo a la brasa con papas y ensalada.', 32000,
-        (SELECT id_categoria FROM categorias WHERE nombre = 'Pollo Frito'), 'ACTIVO');
+VALUES ('Tenders X6', 'Tenders de pechuga de pollo crispy, con papas a la francesa, más una tostada de pan y salsa especial de la casa.', 29900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Tenders'), 'ACTIVO');
 
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Pechuga a la Brasa', 'Pechuga a la brasa con papas, arroz y ensalada.', 24500,
-        (SELECT id_categoria FROM categorias WHERE nombre = 'Pollo Frito'), 'ACTIVO');
+VALUES ('Tenders X8', 'Tenders de pechuga de pollo crispy, con papas a la francesa, más una tostada de pan y salsa especial de la casa. Incluye 2 tostadas de pan.', 38900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Tenders'), 'ACTIVO');
 
--- Combos
+-- Tenders Combo
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Combo Familiar', '1 pollo entero, papas familiares, gaseosa 2L y 4 panes.', 78000,
-        (SELECT id_categoria FROM categorias WHERE nombre = 'Combos'), 'ACTIVO');
-
-INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Combo Personal', '¼ de pollo, papas medianas y gaseosa personal.', 24000,
-        (SELECT id_categoria FROM categorias WHERE nombre = 'Combos'), 'ACTIVO');
-
--- Bebidas
-INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Gaseosa 1.5L', 'Gaseosa personal de 1.5 litros.', 8000,
-        (SELECT id_categoria FROM categorias WHERE nombre = 'Bebidas'), 'ACTIVO');
+VALUES ('Tenders X4 Combo', 'Tenders de pechuga de pollo crispy, con papas a la francesa, más tostada de pan, gaseosa Coca-Cola (250ml) y salsa especial de la casa.', 22900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Tenders Combo'), 'ACTIVO');
 
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Jugo Natural', 'Jugo de fruta natural (mora, mango o lulo).', 6000,
-        (SELECT id_categoria FROM categorias WHERE nombre = 'Bebidas'), 'ACTIVO');
+VALUES ('Tenders X6 Combo', 'Tenders de pechuga de pollo crispy, con papas a la francesa, más tostada de pan, gaseosa Coca-Cola (250ml) y salsa especial de la casa.', 31900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Tenders Combo'), 'ACTIVO');
 
--- Adicionales
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Adición de Papas', 'Porción adicional de papas a la francesa.', 6000,
-        (SELECT id_categoria FROM categorias WHERE nombre = 'Adicionales'), 'ACTIVO');
+VALUES ('Tenders X8 Combo', 'Tenders de pechuga de pollo crispy, con papas a la francesa, más tostadas de pan, 2 gaseosas Coca-Cola (250ml) y salsa especial de la casa.', 41900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Tenders Combo'), 'ACTIVO');
+
+-- Hamburguesas
+INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
+VALUES ('Classic Chicken Burger', '', 21900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Hamburguesas'), 'ACTIVO');
+
+INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
+VALUES ('Classic Chicken Burger Combo', 'Classic chicken burger con papas a la francesa y gaseosa Coca-Cola (250ml).', 25900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Hamburguesas'), 'ACTIVO');
+
+INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
+VALUES ('Rosto Chicken Burger', '', 23900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Hamburguesas'), 'ACTIVO');
+
+INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
+VALUES ('Rosto Chicken Burger Combo', 'Rosto chicken burger con papas a la francesa y gaseosa Coca-Cola (250ml).', 27900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Hamburguesas'), 'ACTIVO');
+
+-- Chicken Dog
+INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
+VALUES ('Rosto Chicken Dog', '', 14900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Chicken Dog'), 'ACTIVO');
+
+INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
+VALUES ('Rosto Chicken Dog Combo', 'Rosto chicken dog con gaseosa Coca-Cola (250ml).', 16900,
+        (SELECT id_categoria FROM categorias WHERE nombre = 'Chicken Dog'), 'ACTIVO');
 
 -- ------------------------------------------------------------
 -- 4) CLIENTES DE EJEMPLO
