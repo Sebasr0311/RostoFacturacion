@@ -51,8 +51,10 @@ jobs:
       - name: Build
         working-directory: frontend
         env:
-          # Backend de producción (Render). CORS ya permite este origin.
-          VITE_API_URL: https://rostofacturacion.onrender.com
+          # Backend de producción (Render). El prefijo /api es parte de la
+          # base URL: api.js hace baseURL = VITE_API_URL y las rutas son
+          # /auth/login, /facturas, etc. CORS ya permite este origin.
+          VITE_API_URL: https://rostofacturacion.onrender.com/api
         run: npm run build
 
       - name: Upload Pages artifact
