@@ -91,8 +91,10 @@ const listar = asyncHandler(async (req, res) => {
                 WHERE 1 = 1`;
     const binds = {};
     if (fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
-      // comparar solo la parte de fecha (TRUNC sobre la columna)
-      sql += ` AND TRUNC(f.fecha_factura) = TO_DATE(:fecha, 'YYYY-MM-DD')`;
+      // Comparar en la zona horaria del negocio (Colombia):
+      // fecha_factura se guarda en UTC; se convierte a America/Bogota
+      // antes de truncar para que un día local abarque 00:00-23:59 local.
+      sql += ` AND TRUNC(FROM_TZ(f.fecha_factura, 'UTC') AT TIME ZONE 'America/Bogota') = TO_DATE(:fecha, 'YYYY-MM-DD')`;
       binds.fecha = fecha;
     }
     if (estado && (estado === 'PAGADA' || estado === 'ANULADA')) {

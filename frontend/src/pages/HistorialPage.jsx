@@ -165,7 +165,19 @@ export default function HistorialPage() {
             Ventas del día, reportes y exportación.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
+          {/* Buscador en el header: posición estándar de dashboard */}
+          <div className="relative w-full sm:w-72">
+            <SearchIcon size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-carbon/50" />
+            <input
+              type="search"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar por número o cliente…"
+              aria-label="Buscar facturas por número o cliente"
+              className={`${inputCls} pl-10`}
+            />
+          </div>
           <button
             type="button"
             onClick={exportarHoy}
@@ -179,25 +191,14 @@ export default function HistorialPage() {
       </div>
 
       {/* Filtros */}
-      <div className="grid grid-cols-1 gap-3 rounded-2xl border border-crema-borde bg-white p-4 shadow-card sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 rounded-2xl border border-crema-borde bg-white p-4 shadow-card sm:grid-cols-2 lg:grid-cols-3">
         <label className="flex items-center gap-2 text-sm font-medium text-carbon/75">
           <CalendarIcon size={18} className="shrink-0 text-carbon/50" />
           <span className="sr-only">Fecha</span>
           <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={inputCls} />
         </label>
-        <div className="relative sm:col-span-2">
-          <SearchIcon size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-carbon/50" />
-          <input
-            type="search"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            placeholder="Buscar por número de factura o cliente…"
-            aria-label="Buscar facturas por número o cliente"
-            className={`${inputCls} pl-10`}
-          />
-        </div>
         {/* Exportar rango */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
           <input
             type="date"
             value={rango.desde}

@@ -21,11 +21,11 @@ function rangoFiltro(desde, hasta) {
   const binds = {};
   const valida = (v) => v && /^\d{4}-\d{2}-\d{2}$/.test(v);
   if (valida(desde)) {
-    conds.push(`TRUNC(f.fecha_factura) >= TO_DATE(:desde, 'YYYY-MM-DD')`);
+    conds.push(`TRUNC(FROM_TZ(f.fecha_factura, 'UTC') AT TIME ZONE 'America/Bogota') >= TO_DATE(:desde, 'YYYY-MM-DD')`);
     binds.desde = desde;
   }
   if (valida(hasta)) {
-    conds.push(`TRUNC(f.fecha_factura) <= TO_DATE(:hasta, 'YYYY-MM-DD')`);
+    conds.push(`TRUNC(FROM_TZ(f.fecha_factura, 'UTC') AT TIME ZONE 'America/Bogota') <= TO_DATE(:hasta, 'YYYY-MM-DD')`);
     binds.hasta = hasta;
   }
   return { where: conds.join(' AND '), binds };
@@ -40,11 +40,14 @@ function rangoFiltro(desde, hasta) {
 async function resumenVentas({ desde = null, hasta = null }) {
   const conn = await getConnection();
   try {
-    // Para "ventas del día" tomamos el día actual de la BD.
+    // Para "ventas del día" tomamos el día actual en la zona del negocio
+    // (la BD guarda UTC; el día local de Colombia inicia 5h antes).
     let effDesde = desde;
     let effHasta = hasta;
     if (!desde && !hasta) {
-      const today = await conn.execute(`SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS "dia" FROM dual`);
+      const today = await conn.execute(
+        `SELECT TO_CHAR(TRUNC(FROM_TZ(CAST(SYSDATE AS TIMESTAMP), 'UTC') AT TIME ZONE 'America/Bogota'), 'YYYY-MM-DD') AS "dia" FROM dual`
+      );
       const dia = today.rows[0].DIA;
       effDesde = dia;
       effHasta = dia;
@@ -113,14 +116,16 @@ async function detalleFacturas({ desde = null, hasta = null }) {
     let effDesde = desde;
     let effHasta = hasta;
     if (!desde && !hasta) {
-      const today = await conn.execute(`SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS "dia" FROM dual`);
+      const today = await conn.execute(
+        `SELECT TO_CHAR(TRUNC(FROM_TZ(CAST(SYSDATE AS TIMESTAMP), 'UTC') AT TIME ZONE 'America/Bogota'), 'YYYY-MM-DD') AS "dia" FROM dual`
+      );
       effDesde = today.rows[0].DIA;
       effHasta = today.rows[0].DIA;
     }
     const { where, binds } = rangoFiltro(effDesde, effHasta);
     const result = await conn.execute(
       `SELECT f.numero_factura,
-              TO_CHAR(f.fecha_factura, 'HH24:MI:SS') AS hora,
+              TO_CHAR(FROM_TZ(f.fecha_factura, 'UTC') AT TIME ZONE 'America/Bogota', 'HH24:MI:SS') AS hora,
               NVL(c.nombre, 'CONSUMIDOR FINAL') AS cliente,
               f.metodo_pago,
               f.total
@@ -147,7 +152,9 @@ async function detalleProductos({ desde = null, hasta = null }) {
     let effDesde = desde;
     let effHasta = hasta;
     if (!desde && !hasta) {
-      const today = await conn.execute(`SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD') AS "dia" FROM dual`);
+      const today = await conn.execute(
+        `SELECT TO_CHAR(TRUNC(FROM_TZ(CAST(SYSDATE AS TIMESTAMP), 'UTC') AT TIME ZONE 'America/Bogota'), 'YYYY-MM-DD') AS "dia" FROM dual`
+      );
       effDesde = today.rows[0].DIA;
       effHasta = today.rows[0].DIA;
     }
