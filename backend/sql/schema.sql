@@ -99,6 +99,7 @@ CREATE TABLE facturas (
     estado         VARCHAR2(15) DEFAULT 'PAGADA' CHECK (estado IN ('PAGADA','ANULADA')),
     estado_envio   VARCHAR2(15) DEFAULT 'PENDIENTE' CHECK (estado_envio IN ('PENDIENTE','ENVIADO')),
     fecha_envio    TIMESTAMP NULL,
+    aplicar_iva    NUMBER(1) DEFAULT 0 CHECK (aplicar_iva IN (0,1)),
     observaciones  VARCHAR2(500)
 );
 

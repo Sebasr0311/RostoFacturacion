@@ -50,6 +50,7 @@ export default function PosPage() {
   const [metodoPago, setMetodoPago] = useState('EFECTIVO');
   const [descuentoPct, setDescuentoPct] = useState('');
   const [observaciones, setObservaciones] = useState('');
+  const [aplicarIva, setAplicarIva] = useState(false);
   const [generando, setGenerando] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -147,6 +148,7 @@ export default function PosPage() {
     setCart([]);
     setDescuentoPct('');
     setObservaciones('');
+    setAplicarIva(false);
     setCliente(inicialCliente);
     setMetodoPago('EFECTIVO');
   }, []);
@@ -159,6 +161,7 @@ export default function PosPage() {
         items: cart.map((i) => ({ id_producto: i.id_producto, cantidad: i.cantidad })),
         metodo_pago: metodoPago,
         descuento: descuentoCOP,
+        aplicar_iva: aplicarIva,
       };
       const tieneCliente = Object.values(cliente).some((v) => v.trim());
       if (tieneCliente) {
@@ -179,7 +182,7 @@ export default function PosPage() {
     } finally {
       setGenerando(false);
     }
-  }, [cart, metodoPago, descuentoCOP, cliente, observaciones, vaciarCarrito]);
+  }, [cart, metodoPago, descuentoCOP, cliente, observaciones, aplicarIva, vaciarCarrito]);
 
   const cerrarCarrito = useCallback(() => setCartOpen(false), []);
 
@@ -320,6 +323,8 @@ export default function PosPage() {
         onMetodoPagoChange={setMetodoPago}
         descuentoPct={descuentoPct}
         onDescuentoPctChange={setDescuentoPct}
+        aplicarIva={aplicarIva}
+        onAplicarIvaChange={setAplicarIva}
         observaciones={observaciones}
         onObservacionesChange={setObservaciones}
         subtotal={subtotal}

@@ -96,6 +96,8 @@ export default memo(function CartPanel({
   onMetodoPagoChange,
   descuentoPct = 0,
   onDescuentoPctChange,
+  aplicarIva = false,
+  onAplicarIvaChange,
   observaciones = '',
   onObservacionesChange,
   subtotal = 0,
@@ -108,7 +110,7 @@ export default memo(function CartPanel({
 }) {
   const count = cart.reduce((acc, i) => acc + i.cantidad, 0);
   const descuentoCOP = round2((subtotal * (Number(descuentoPct) || 0)) / 100);
-  const ivaPreview = round2(subtotal * (IVA_PORCENTAJE_PREVIEW / 100));
+  const ivaPreview = aplicarIva ? round2(subtotal * (IVA_PORCENTAJE_PREVIEW / 100)) : 0;
   const totalPreview = round2(subtotal + ivaPreview - descuentoCOP);
 
   // FIRMA (a): rebote del carrito y pop-in del badge re-disparados con
@@ -344,16 +346,32 @@ export default memo(function CartPanel({
             </label>
           </div>
 
+          {/* Incluir IVA */}
+          <label className="flex items-start justify-between gap-3 rounded-xl border border-crema-borde bg-white p-3">
+            <span className="text-sm font-semibold text-carbon">
+              Incluir IVA ({IVA_PORCENTAJE_PREVIEW} %)
+              <span className="mt-0.5 block text-xs font-normal text-carbon/60">Sin IVA por defecto</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={aplicarIva}
+              onChange={(e) => onAplicarIvaChange(e.target.checked)}
+              className="mt-0.5 h-5 w-5 shrink-0 accent-rojo-brasa"
+            />
+          </label>
+
           {/* Totales */}
           <div className="space-y-1.5 rounded-2xl border border-crema-borde bg-white p-4 shadow-card text-sm">
             <div className="flex justify-between text-carbon/75">
               <span>Subtotal</span>
               <span className="font-semibold tabular-nums">{formatCOP(subtotal)}</span>
             </div>
-            <div className="flex justify-between text-carbon/75">
-              <span>IVA ({IVA_PORCENTAJE_PREVIEW} %)</span>
-              <span className="font-semibold tabular-nums">{formatCOP(ivaPreview)}</span>
-            </div>
+            {aplicarIva && (
+              <div className="flex justify-between text-carbon/75">
+                <span>IVA ({IVA_PORCENTAJE_PREVIEW} %)</span>
+                <span className="font-semibold tabular-nums">{formatCOP(ivaPreview)}</span>
+              </div>
+            )}
             {descuentoCOP > 0 && (
               <div className="flex justify-between text-rojo-brasa-oscuro">
                 <span>Descuento</span>

@@ -108,10 +108,12 @@ export default function FacturaView({ factura }) {
           <span>Subtotal</span>
           <span className="font-semibold tabular-nums">{formatCOP(factura.subtotal)}</span>
         </div>
-        <div className="flex justify-between text-carbon/70">
-          <span>IVA</span>
-          <span className="font-semibold tabular-nums">{formatCOP(factura.impuestos)}</span>
-        </div>
+        {Number(factura.impuestos) !== 0 && (
+          <div className="flex justify-between text-carbon/70">
+            <span>IVA</span>
+            <span className="font-semibold tabular-nums">{formatCOP(factura.impuestos)}</span>
+          </div>
+        )}
         {Number(factura.descuento) > 0 && (
           <div className="flex justify-between text-rojo-brasa-oscuro">
             <span>Descuento</span>

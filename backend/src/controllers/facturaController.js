@@ -41,6 +41,7 @@ const crearSchema = z.object({
   }),
   descuento: z.coerce.number().min(0, 'El descuento no puede ser negativo.').optional().default(0),
   observaciones: z.string().max(500).optional().default(''),
+  aplicar_iva: z.boolean().optional().default(false),
 });
 
 /**
@@ -51,7 +52,7 @@ const crear = asyncHandler(async (req, res) => {
   if (!parsed.success) {
     return fail(res, 400, 'Datos de la factura inválidos.', zodErrorMessages(parsed.error));
   }
-  const { cliente, items, metodo_pago, descuento, observaciones } = parsed.data;
+  const { cliente, items, metodo_pago, descuento, observaciones, aplicar_iva } = parsed.data;
   const id_usuario = req.usuario && req.usuario.id_usuario;
 
   try {
@@ -61,6 +62,7 @@ const crear = asyncHandler(async (req, res) => {
       metodo_pago,
       descuento,
       observaciones,
+      aplicar_iva,
       id_usuario,
     });
     return ok(res, factura, 'Factura generada correctamente.', 201);
@@ -82,7 +84,7 @@ const listar = asyncHandler(async (req, res) => {
   try {
     let sql = `SELECT f.id_factura, f.numero_factura, f.fecha_factura, f.subtotal,
                       f.impuestos, f.descuento, f.total, f.metodo_pago, f.estado,
-                      f.estado_envio, f.fecha_envio,
+                      f.estado_envio, f.fecha_envio, f.aplicar_iva,
                       c.nombre AS cliente
                  FROM facturas f
                  LEFT JOIN clientes c ON c.id_cliente = f.id_cliente
@@ -181,7 +183,7 @@ const obtener = asyncHandler(async (req, res) => {
     const cab = await conn.execute(
       `SELECT f.id_factura, f.numero_factura, f.id_cliente, f.fecha_factura,
               f.subtotal, f.impuestos, f.descuento, f.total, f.metodo_pago,
-              f.estado, f.estado_envio, f.fecha_envio, f.observaciones,
+              f.estado, f.estado_envio, f.fecha_envio, f.aplicar_iva, f.observaciones,
               c.nombre AS cliente_nombre, c.documento AS cliente_documento,
               c.telefono AS cliente_telefono, c.correo AS cliente_correo,
               u.nombre_completo AS usuario
@@ -220,6 +222,7 @@ const obtener = asyncHandler(async (req, res) => {
         estado: f.ESTADO,
         estado_envio: f.ESTADO_ENVIO,
         fecha_envio: f.FECHA_ENVIO,
+        aplicar_iva: Boolean(f.APLICAR_IVA),
         observaciones: f.OBSERVACIONES,
         usuario: f.USUARIO,
         cliente: {
@@ -374,7 +377,7 @@ const enviar = asyncHandler(async (req, res) => {
     const cab = await conn.execute(
       `SELECT f.id_factura, f.numero_factura, f.id_cliente, f.fecha_factura,
               f.subtotal, f.impuestos, f.descuento, f.total, f.metodo_pago,
-              f.estado, f.estado_envio, f.fecha_envio, f.observaciones,
+              f.estado, f.estado_envio, f.fecha_envio, f.aplicar_iva, f.observaciones,
               c.nombre AS cliente_nombre, c.documento AS cliente_documento,
               c.telefono AS cliente_telefono, c.correo AS cliente_correo,
               u.nombre_completo AS usuario
@@ -410,6 +413,7 @@ const enviar = asyncHandler(async (req, res) => {
         estado: f.ESTADO,
         estado_envio: f.ESTADO_ENVIO,
         fecha_envio: f.FECHA_ENVIO,
+        aplicar_iva: Boolean(f.APLICAR_IVA),
         observaciones: f.OBSERVACIONES,
         usuario: f.USUARIO,
         cliente: {

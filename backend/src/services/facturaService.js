@@ -26,10 +26,11 @@ const { getConnection } = require('../config/oracle');
  * @param {string} params.metodo_pago EFECTIVO|TARJETA|TRANSFERENCIA|MIXTO
  * @param {number} [params.descuento]
  * @param {string} [params.observaciones]
+ * @param {boolean} [params.aplicar_iva] si true, agrega IVA al total; por defecto false (sin IVA)
  * @param {number} params.id_usuario el usuario que factura (desde JWT)
  * @returns {Promise<object>} la factura completa (cabecera + líneas + cliente)
  */
-async function crearFactura({ cliente, items, metodo_pago, descuento = 0, observaciones = null, id_usuario }) {
+async function crearFactura({ cliente, items, metodo_pago, descuento = 0, observaciones = null, aplicar_iva = false, id_usuario }) {
   const conn = await getConnection();
   try {
     // --- 1. Obtener precios REALES de la BD para cada producto ---
@@ -61,7 +62,7 @@ async function crearFactura({ cliente, items, metodo_pago, descuento = 0, observ
     // --- 2. Calcular subtotal, impuesto, descuento y total ---
     const subtotal = lineas.reduce((acc, l) => acc + l.precio_unitario * l.cantidad, 0);
     const impuesPct = impuestoPorcentaje();
-    const impuestos = subtotal * (impuesPct / 100);
+    const impuestos = aplicar_iva ? subtotal * (impuesPct / 100) : 0;
     const desc = Number(descuento) || 0;
     const total = subtotal + impuestos - desc;
     // Redondeo a 2 decimales COP
@@ -100,8 +101,8 @@ async function crearFactura({ cliente, items, metodo_pago, descuento = 0, observ
     // El TRIGGER trg_factura_numero completa numero_factura antes del insert.
     // RETURNING devuelve el valor ya generado por el trigger (FAC-AAAA-NNNNNN).
     const ins1 = await conn.execute(
-      `INSERT INTO facturas (id_cliente, id_usuario, subtotal, impuestos, descuento, total, metodo_pago, observaciones)
-       VALUES (:id_cliente, :id_usuario, :subtotal, :impuestos, :descuento, :total, :metodo_pago, :observaciones)
+      `INSERT INTO facturas (id_cliente, id_usuario, subtotal, impuestos, descuento, total, metodo_pago, observaciones, aplicar_iva)
+       VALUES (:id_cliente, :id_usuario, :subtotal, :impuestos, :descuento, :total, :metodo_pago, :observaciones, :aplicar_iva)
        RETURNING id_factura, numero_factura INTO :id, :num`,
       {
         id_cliente,
@@ -112,6 +113,7 @@ async function crearFactura({ cliente, items, metodo_pago, descuento = 0, observ
         total: round2(total),
         metodo_pago,
         observaciones: observaciones || null,
+        aplicar_iva: aplicar_iva ? 1 : 0,
         id: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
         num: { dir: oracledb.BIND_OUT, type: oracledb.STRING },
       }
@@ -151,6 +153,7 @@ async function crearFactura({ cliente, items, metodo_pago, descuento = 0, observ
       metodo_pago,
       estado: 'PAGADA',
       observaciones: observaciones || null,
+      aplicar_iva: Boolean(aplicar_iva),
       detalle: lineas.map((l) => ({
         id_producto: l.id_producto,
         nombre: l.nombre,
