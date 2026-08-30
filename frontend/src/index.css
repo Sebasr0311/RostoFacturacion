@@ -36,6 +36,8 @@
   --color-mostaza-miel: #c9a227; /* secundario (estados, badges) */
   --color-mostaza-suave: #f0e0ba; /* fondo de badge mostaza */
   --color-brasa-suave: #f9e3d9; /* fondo de badge brasa / error */
+  --color-verde-brasa: #1f7a4d; /* verde cálido para señales de éxito */
+  --color-texto-suave: #5b5048; /* texto atenuado pero AA sobre crema/blanco */
 
   /* ---------- Sombras ---------- */
   --shadow-soft: 0 16px 40px -16px rgb(42 35 32 / 0.35);
@@ -47,17 +49,10 @@
      Web Animations API en ProductCard (mismo easing y duración);
      aquí viven los tokens CSS usados por los componentes. */
   --ease-rosto: cubic-bezier(0.22, 1, 0.36, 1);
-  --animate-cart-bump: cart-bump 300ms var(--ease-rosto);
   --animate-pop-in: pop-in 300ms var(--ease-rosto);
   --animate-toast-in: toast-in 250ms var(--ease-rosto);
   --animate-fade-in: fade-in 200ms ease-out;
 
-  @keyframes cart-bump {
-    0% { transform: scale(1) rotate(0deg); }
-    35% { transform: scale(1.25) rotate(-8deg); }
-    65% { transform: scale(0.92) rotate(5deg); }
-    100% { transform: scale(1) rotate(0deg); }
-  }
   @keyframes pop-in {
     0% { opacity: 0; transform: scale(0.6); }
     100% { opacity: 1; transform: scale(1); }

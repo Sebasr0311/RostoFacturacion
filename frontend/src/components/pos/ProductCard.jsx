@@ -9,7 +9,7 @@
 // - el botón "+" es SIEMPRE visible (touch, tablet), no solo hover.
 // ============================================================
 
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { PlusIcon, FlameIcon } from '../ui/Icons';
 import { formatCOP } from '../../utils/format';
 
@@ -30,13 +30,14 @@ function ProductImage({ producto }) {
       src={src}
       alt={producto.nombre}
       loading="lazy"
+      decoding="async"
       onError={() => setBroken(true)}
       className="aspect-[4/3] w-full rounded-xl object-cover"
     />
   );
 }
 
-export default function ProductCard({ producto, onAdd }) {
+const ProductCard = memo(function ProductCard({ producto, onAdd }) {
   const cardRef = useRef(null);
   const [added, setAdded] = useState(false);
   const addedTimer = useRef(null);
@@ -92,13 +93,15 @@ export default function ProductCard({ producto, onAdd }) {
         </span>
       </div>
       <div className="mt-3 flex flex-1 flex-col">
-        <h3 className="line-clamp-2 font-display text-[15px] font-semibold leading-snug text-carbon">
+        <span className="line-clamp-2 font-display text-[15px] font-semibold leading-snug text-carbon">
           {producto.nombre}
-        </h3>
+        </span>
         <p className="mt-1 font-display text-lg font-bold tabular-nums text-rojo-brasa">
           {formatCOP(producto.precio)}
         </p>
       </div>
     </button>
   );
-}
+});
+
+export default ProductCard;

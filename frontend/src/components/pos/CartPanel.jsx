@@ -11,7 +11,7 @@
 // La UI pide un porcentaje y aquí se convierte: desc = subtotal*pct/100.
 // ============================================================
 
-import { useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import {
   ShoppingCartIcon,
   TrashIcon,
@@ -55,7 +55,7 @@ function ClienteSection({ cliente, onChange }) {
               onChange={setField('nombre')}
               maxLength={150}
               placeholder="Nombre del cliente"
-              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40"
+              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/60"
             />
           </label>
           <label className="block text-xs font-medium text-carbon/75">
@@ -66,7 +66,7 @@ function ClienteSection({ cliente, onChange }) {
               onChange={setField('documento')}
               maxLength={30}
               placeholder="CC / NIT"
-              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40"
+              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/60"
             />
           </label>
           <label className="block text-xs font-medium text-carbon/75 sm:col-span-2">
@@ -77,7 +77,7 @@ function ClienteSection({ cliente, onChange }) {
               onChange={setField('telefono')}
               maxLength={30}
               placeholder="300 000 0000"
-              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40"
+              className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/60"
             />
           </label>
         </div>
@@ -86,7 +86,7 @@ function ClienteSection({ cliente, onChange }) {
   );
 }
 
-export default function CartPanel({
+export default memo(function CartPanel({
   open = false,
   onClose,
   cart = [],
@@ -111,6 +111,45 @@ export default function CartPanel({
   const ivaPreview = round2(subtotal * (IVA_PORCENTAJE_PREVIEW / 100));
   const totalPreview = round2(subtotal + ivaPreview - descuentoCOP);
 
+  // FIRMA (a): rebote del carrito y pop-in del badge re-disparados con
+  // Web Animations API (patrón del proyecto, igual que ProductCard)
+  // en cada cambio del conteo — en vez de `key={count}` (que remonta y
+  // genera warning). Respeta prefers-reduced-motion.
+  const cartIconRef = useRef(null);
+  const badgeRef = useRef(null);
+
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    const cartEl = cartIconRef.current;
+    if (cartEl) {
+      cartEl.animate(
+        [
+          { transform: 'scale(1) rotate(0deg)' },
+          { transform: 'scale(1.18) rotate(-8deg)' },
+          { transform: 'scale(1) rotate(0deg)' },
+        ],
+        { duration: 300, easing }
+      );
+    }
+    const badgeEl = badgeRef.current;
+    if (badgeEl) {
+      badgeEl.animate(
+        [
+          { transform: 'scale(0.6)', opacity: 0 },
+          { transform: 'scale(1.08)', opacity: 1 },
+          { transform: 'scale(1)', opacity: 1 },
+        ],
+        { duration: 300, easing }
+      );
+    }
+  }, [count]);
+
   const content = (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -118,16 +157,16 @@ export default function CartPanel({
         <div className="flex items-center gap-2">
           {/* Rebote del carrito al cambiar el conteo (firma) */}
           <ShoppingCartIcon
-            key={count}
+            ref={cartIconRef}
             size={22}
-            className="text-dorado-oscuro motion-safe:animate-cart-bump"
+            className="text-dorado-oscuro"
           />
           <h2 className="font-display text-lg font-semibold text-carbon">Tu orden</h2>
           {count > 0 && (
             <span
-              key={count}
+              ref={badgeRef}
               aria-live="polite"
-              className="rounded-full bg-carbon px-2.5 py-0.5 text-xs font-bold tabular-nums text-dorado-frito motion-safe:animate-pop-in"
+              className="rounded-full bg-carbon px-2.5 py-0.5 text-xs font-bold tabular-nums text-dorado-frito"
             >
               {count} ítems
             </span>
@@ -205,7 +244,7 @@ export default function CartPanel({
                       <TrashIcon size={15} />
                     </button>
                   </div>
-                  <p className="mt-0.5 text-xs tabular-nums text-carbon/60">
+                  <p className="mt-0.5 text-xs tabular-nums text-carbon/75">
                     {formatCOP(item.precio)} c/u
                   </p>
                   <div className="mt-2 flex items-center justify-between">
@@ -252,7 +291,7 @@ export default function CartPanel({
 
           {/* Método de pago */}
           <div>
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-carbon/60">
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-carbon/75">
               Método de pago
             </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -289,7 +328,7 @@ export default function CartPanel({
                 value={descuentoPct}
                 onChange={(e) => onDescuentoPctChange(e.target.value)}
                 inputMode="numeric"
-                className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm tabular-nums text-carbon placeholder:text-carbon/40"
+                className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm tabular-nums text-carbon placeholder:text-carbon/60"
               />
             </label>
             <label className="block text-xs font-medium text-carbon/75">
@@ -300,7 +339,7 @@ export default function CartPanel({
                 onChange={(e) => onObservacionesChange(e.target.value)}
                 maxLength={500}
                 placeholder="Nota en la factura"
-                className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40"
+                className="mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/60"
               />
             </label>
           </div>
@@ -372,4 +411,4 @@ export default function CartPanel({
       </div>
     </>
   );
-}
+});

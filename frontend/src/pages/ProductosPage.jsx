@@ -6,7 +6,7 @@
 // (el backend también lo valida con 403).
 // ============================================================
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { listarProductos, eliminarProducto } from '../services/productoService';
 import { listarCategorias } from '../services/categoriaService';
@@ -16,27 +16,13 @@ import ProductoModal from '../components/productos/ProductoModal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import EmptyState from '../components/ui/EmptyState';
 import Spinner from '../components/ui/Spinner';
+import EstadoBadge from '../components/ui/EstadoBadge';
 import { TableSkeleton } from '../components/ui/Skeleton';
 import { PlusIcon, PencilIcon, TrashIcon, PackageIcon, FlameIcon } from '../components/ui/Icons';
 import { formatCOP } from '../utils/format';
-import { ESTADO_PRODUCTO } from '../utils/constants';
 
 const MSG_SERVER =
   'No pudimos conectarnos con el servidor. Verifica que la API esté disponible y volvé a intentar.';
-
-function EstadoBadge({ estado }) {
-  const info = ESTADO_PRODUCTO[estado] || { label: estado };
-  const activo = estado === 'ACTIVO';
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-        activo ? 'bg-mostaza-suave text-carbon' : 'bg-crema-borde text-carbon/70'
-      }`}
-    >
-      {info.label}
-    </span>
-  );
-}
 
 function Thumb({ producto }) {
   const [broken, setBroken] = useState(false);
@@ -71,17 +57,24 @@ export default function ProductosPage() {
   const [eliminando, setEliminando] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  // ---- Guarda de desmontaje para la carga asíncrona ----
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const cargarDatos = useCallback(async () => {
+    if (!mountedRef.current) return;
     setLoading(true);
     setError('');
     try {
       const [prods, cats] = await Promise.all([listarProductos(), listarCategorias()]);
+      if (!mountedRef.current) return;
       setProductos(prods);
       setCategorias(cats.filter((c) => c.estado === 'ACTIVO'));
     } catch (err) {
+      if (!mountedRef.current) return;
       setError(errorMessage(err, MSG_SERVER));
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
@@ -186,7 +179,7 @@ export default function ProductosPage() {
             <table className="w-full min-w-[720px] text-sm">
               <caption className="sr-only">Listado de productos del catálogo</caption>
               <thead>
-                <tr className="border-b border-crema-borde bg-crema-suave text-left text-[11px] font-semibold uppercase tracking-wide text-carbon/60">
+                <tr className="border-b border-crema-borde bg-crema-suave text-left text-[11px] font-semibold uppercase tracking-wide text-carbon/75">
                   <th scope="col" className="px-4 py-3">Producto</th>
                   <th scope="col" className="px-4 py-3">Precio</th>
                   <th scope="col" className="px-4 py-3">Categoría</th>
@@ -203,7 +196,7 @@ export default function ProductosPage() {
                         <div className="min-w-0">
                           <p className="font-semibold text-carbon">{p.nombre}</p>
                           {p.descripcion && (
-                            <p className="max-w-xs truncate text-xs text-carbon/60">{p.descripcion}</p>
+                            <p className="max-w-xs truncate text-xs text-carbon/75">{p.descripcion}</p>
                           )}
                         </div>
                       </div>

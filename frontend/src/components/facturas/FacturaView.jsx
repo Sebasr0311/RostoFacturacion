@@ -10,25 +10,10 @@
 // El root lleva id="print-area" para imprimir con Ctrl+P.
 // ============================================================
 
-import { METODO_PAGO_LABEL, ESTADO_FACTURA } from '../../utils/constants';
+import { METODO_PAGO_LABEL } from '../../utils/constants';
 import { formatCOP, formatFecha } from '../../utils/format';
 import { FlameIcon } from '../ui/Icons';
-
-function EstadoBadge({ estado }) {
-  const info = ESTADO_FACTURA[estado] || { label: estado };
-  const isAnulada = estado === 'ANULADA';
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-        isAnulada
-          ? 'bg-brasa-suave text-rojo-brasa-oscuro'
-          : 'bg-mostaza-suave text-carbon'
-      }`}
-    >
-      {info.label}
-    </span>
-  );
-}
+import EstadoBadge from '../ui/EstadoBadge';
 
 export default function FacturaView({ factura }) {
   if (!factura) return null;
@@ -47,14 +32,14 @@ export default function FacturaView({ factura }) {
           </span>
           <div>
             <p className="font-display text-xl font-bold text-carbon">Rosto</p>
-            <p className="text-xs text-carbon/60">Pollo a la brasa · Factura de venta</p>
+            <p className="text-xs text-carbon/75">Pollo a la brasa · Factura de venta</p>
           </div>
         </div>
         <div className="text-right">
           <p className="font-display text-lg font-bold text-rojo-brasa">
             {factura.numero_factura}
           </p>
-          <p className="text-xs tabular-nums text-carbon/60">{formatFecha(factura.fecha_factura)}</p>
+          <p className="text-xs tabular-nums text-carbon/75">{formatFecha(factura.fecha_factura)}</p>
           <div className="mt-1">
             <EstadoBadge estado={factura.estado} />
           </div>
@@ -64,14 +49,14 @@ export default function FacturaView({ factura }) {
       {/* Datos cliente / usuario / método */}
       <div className="grid grid-cols-2 gap-3 border-b border-crema-borde py-3 text-sm lg:grid-cols-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/55">Cliente</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/75">Cliente</p>
           <p className="font-semibold text-carbon">{clienteNombre}</p>
-          {cliente?.documento && <p className="text-xs text-carbon/60">Doc. {cliente.documento}</p>}
-          {cliente?.telefono && <p className="text-xs text-carbon/60">Tel. {cliente.telefono}</p>}
-          {cliente?.correo && <p className="text-xs text-carbon/60">{cliente.correo}</p>}
+          {cliente?.documento && <p className="text-xs text-carbon/75">Doc. {cliente.documento}</p>}
+          {cliente?.telefono && <p className="text-xs text-carbon/75">Tel. {cliente.telefono}</p>}
+          {cliente?.correo && <p className="text-xs text-carbon/75">{cliente.correo}</p>}
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/55">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/75">
             Método de pago
           </p>
           <p className="font-semibold text-carbon">
@@ -79,11 +64,11 @@ export default function FacturaView({ factura }) {
           </p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/55">Atendió</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/75">Atendió</p>
           <p className="font-semibold text-carbon">{factura.usuario || '—'}</p>
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/55">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-carbon/75">
             Observaciones
           </p>
           <p className="font-semibold text-carbon">{factura.observaciones || '—'}</p>
@@ -94,7 +79,7 @@ export default function FacturaView({ factura }) {
       <table className="mt-4 w-full text-sm">
         <caption className="sr-only">Detalle de los productos de la factura</caption>
         <thead>
-          <tr className="border-b border-crema-borde text-left text-[11px] font-semibold uppercase tracking-wide text-carbon/55">
+          <tr className="border-b border-crema-borde text-left text-[11px] font-semibold uppercase tracking-wide text-carbon/75">
             <th scope="col" className="py-2 pr-2">Producto</th>
             <th scope="col" className="py-2 pr-2 text-center">Cant.</th>
             <th scope="col" className="py-2 pr-2 text-right">P. unitario</th>

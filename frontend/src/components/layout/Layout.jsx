@@ -47,7 +47,7 @@ export default function Layout() {
           </button>
           <div className="flex-1">
             <p className="font-display text-base font-semibold text-carbon">{title}</p>
-            <p className="text-xs text-carbon/60">
+            <p className="text-xs text-carbon/75">
               {usuario?.nombre_completo || ''} · {formatFechaSola(new Date())}
             </p>
           </div>

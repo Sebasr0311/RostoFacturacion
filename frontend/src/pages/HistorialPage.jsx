@@ -19,6 +19,7 @@ import ResumenCards from '../components/historial/ResumenCards';
 import FacturaModal from '../components/facturas/FacturaModal';
 import EmptyState from '../components/ui/EmptyState';
 import Spinner from '../components/ui/Spinner';
+import EstadoBadge from '../components/ui/EstadoBadge';
 import { TableSkeleton } from '../components/ui/Skeleton';
 import {
   SearchIcon,
@@ -28,26 +29,10 @@ import {
   ReceiptIcon,
 } from '../components/ui/Icons';
 import { formatCOP, formatFecha, todayISO } from '../utils/format';
-import { METODO_PAGO_LABEL, ESTADO_FACTURA } from '../utils/constants';
+import { METODO_PAGO_LABEL } from '../utils/constants';
 
 const MSG_SERVER =
   'No pudimos conectarnos con el servidor. Verifica que la API esté disponible y volvé a intentar.';
-
-function EstadoBadge({ estado }) {
-  const info = ESTADO_FACTURA[estado] || { label: estado };
-  const anulada = estado === 'ANULADA';
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-        anulada
-          ? 'bg-brasa-suave text-rojo-brasa-oscuro'
-          : 'bg-mostaza-suave text-carbon'
-      }`}
-    >
-      {info.label}
-    </span>
-  );
-}
 
 export default function HistorialPage() {
   const navigate = useNavigate();
@@ -167,7 +152,7 @@ export default function HistorialPage() {
   };
 
   const inputCls =
-    'w-full rounded-xl border border-crema-borde bg-white px-3.5 py-2.5 text-sm text-carbon placeholder:text-carbon/40';
+    'w-full rounded-xl border border-crema-borde bg-white px-3.5 py-2.5 text-sm text-carbon placeholder:text-carbon/60';
 
   return (
     <div className="space-y-6">
@@ -293,7 +278,7 @@ export default function HistorialPage() {
                 Listado de facturas de la fecha seleccionada
               </caption>
               <thead>
-                <tr className="border-b border-crema-borde bg-crema-suave text-left text-[11px] font-semibold uppercase tracking-wide text-carbon/60">
+                <tr className="border-b border-crema-borde bg-crema-suave text-left text-[11px] font-semibold uppercase tracking-wide text-carbon/75">
                   <th scope="col" className="px-4 py-3">Factura</th>
                   <th scope="col" className="px-4 py-3">Fecha</th>
                   <th scope="col" className="px-4 py-3">Cliente</th>

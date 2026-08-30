@@ -185,7 +185,7 @@ export default function Sidebar({ open = false, onClose }) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-[linear-gradient(180deg,#2a2320_0%,#2b211b_55%,#36190f_100%)] transition-transform duration-300 motion-reduce:transition-none lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-[linear-gradient(180deg,var(--color-carbon)_0%,var(--color-carbon-claro)_55%,var(--color-rojo-brasa-oscuro)_100%)] transition-transform duration-300 motion-reduce:transition-none lg:translate-x-0 ${
           open ? 'translate-x-0 shadow-soft' : '-translate-x-full'
         }`}
         aria-label="Barra lateral"

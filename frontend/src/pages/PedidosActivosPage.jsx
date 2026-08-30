@@ -15,7 +15,7 @@
 // - Botón "Actualizar" manual; no hay polling automático.
 // ============================================================
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listarPedidosActivos, marcarPedidoEnviado } from '../services/facturaService';
 import { errorMessage } from '../services/api';
@@ -33,7 +33,7 @@ const MSG_SERVER =
 // Los productos salen de detalle_factura: nombre + cantidad.
 function ResumenProductos({ productos }) {
   if (!productos || productos.length === 0) {
-    return <p className="text-sm text-carbon/60">Sin detalle de productos.</p>;
+    return <p className="text-sm text-carbon/75">Sin detalle de productos.</p>;
   }
   return (
     <ul className="space-y-1">
@@ -58,21 +58,28 @@ export default function PedidosActivosPage() {
   const [enviandoIds, setEnviandoIds] = useState(new Set());
   const [errores, setErrores] = useState({}); // id -> mensaje inline
 
+  // ---- Guarda de desmontaje: evita setState tras unmount ----
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const cargarPedidos = useCallback(async () => {
+    if (!mountedRef.current) return;
     setLoading(true);
     setError('');
     try {
       const data = await listarPedidosActivos();
+      if (!mountedRef.current) return;
       // Orden defensivo: más antiguo primero (el backend ya ordena ASC).
       const ordenados = [...data].sort(
         (a, b) => new Date(a.fecha_factura) - new Date(b.fecha_factura)
       );
       setPedidos(ordenados);
     } catch (err) {
+      if (!mountedRef.current) return;
       setError(MSG_SERVER);
       setPedidos([]);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
@@ -88,6 +95,8 @@ export default function PedidosActivosPage() {
       // Transición breve de salida antes de quitar la tarjeta.
       setSaliendo((prev) => new Set(prev).add(id));
       setTimeout(() => {
+        // Si el componente se desmontó, no actualizamos estado.
+        if (!mountedRef.current) return;
         setPedidos((prev) => prev.filter((p) => p.id_factura !== id));
         setSaliendo((prev) => {
           const next = new Set(prev);
@@ -186,7 +195,7 @@ export default function PedidosActivosPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-display text-lg font-bold text-carbon">{p.numero_factura}</p>
-                  <p className="mt-0.5 text-xs text-carbon/60">
+                  <p className="mt-0.5 text-xs text-carbon/75">
                     {formatHora(p.fecha_factura)} · {formatHace(p.fecha_factura)}
                   </p>
                 </div>
@@ -211,7 +220,7 @@ export default function PedidosActivosPage() {
                     {p.cliente?.nombre || 'CONSUMIDOR FINAL'}
                   </p>
                   {p.cliente?.telefono && (
-                    <p className="truncate text-xs tabular-nums text-carbon/60">
+                    <p className="truncate text-xs tabular-nums text-carbon/75">
                       {p.cliente.telefono}
                     </p>
                   )}

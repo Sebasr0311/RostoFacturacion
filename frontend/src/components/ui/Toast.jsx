@@ -23,8 +23,8 @@ export const toast = {
 
 const STYLES = {
   success: {
-    box: 'border-emerald-200 bg-white text-emerald-800',
-    icon: 'bg-emerald-600 text-white',
+    box: 'border-verde-brasa/25 bg-white text-verde-brasa',
+    icon: 'bg-verde-brasa text-white',
     Icon: CheckIcon,
   },
   error: {
@@ -75,7 +75,7 @@ export function ToastHost() {
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              className="shrink-0 rounded p-0.5 text-carbon/50 transition hover:bg-carbon/10 hover:text-carbon"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg p-0 text-carbon/60 transition hover:bg-carbon/10 hover:text-carbon"
               aria-label="Cerrar notificación"
             >
               <XIcon size={16} />

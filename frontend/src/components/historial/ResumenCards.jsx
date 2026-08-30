@@ -80,7 +80,7 @@ export default function ResumenCards({ resumen, loading = false, derived = false
           {resumen.producto_mas_vendido && (
             <span className="inline-flex items-center gap-2 rounded-full border border-crema-borde bg-white px-3 py-1.5 text-xs font-medium text-carbon/80 shadow-sm">
               Más vendido: <strong className="text-carbon">{resumen.producto_mas_vendido}</strong>
-              <span className="text-carbon/55">
+              <span className="text-carbon/75">
                 ({resumen.producto_mas_vendido_cantidad} uds.)
               </span>
             </span>

@@ -22,7 +22,7 @@ const initialState = {
 };
 
 const inputCls =
-  'mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/40';
+  'mt-1 w-full rounded-lg border border-crema-borde bg-white px-3 py-2 text-sm text-carbon placeholder:text-carbon/60';
 
 export default function ProductoModal({ open, onClose, categorias = [], producto = null, onSaved }) {
   const [form, setForm] = useState(initialState);

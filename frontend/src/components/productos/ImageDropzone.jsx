@@ -84,7 +84,7 @@ export default function ImageDropzone({ value, onFileChange, existingUrl = '' })
               <UploadIcon size={22} />
             </span>
             <p className="text-sm font-semibold text-carbon">Arrastrá la imagen aquí o elegí un archivo</p>
-            <p className="text-xs text-carbon/60">PNG, JPG o WEBP · máx. {IMAGEN_MAX_MB} MB (opcional)</p>
+            <p className="text-xs text-carbon/75">PNG, JPG o WEBP · máx. {IMAGEN_MAX_MB} MB (opcional)</p>
           </>
         )}
       </div>

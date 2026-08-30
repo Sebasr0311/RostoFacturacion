@@ -6,7 +6,9 @@
 // Touch target >= 44px (tablet del POS).
 // ============================================================
 
-export default function CategoryTabs({
+import { memo } from 'react';
+
+const CategoryTabs = memo(function CategoryTabs({
   categorias = [],
   active = 'TODAS',
   onSelect,
@@ -56,4 +58,6 @@ export default function CategoryTabs({
       })}
     </div>
   );
-}
+});
+
+export default CategoryTabs;

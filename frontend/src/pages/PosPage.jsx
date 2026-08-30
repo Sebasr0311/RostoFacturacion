@@ -10,7 +10,7 @@
 // aquí el usuario ingresa un %, y se convierte a COP antes de enviar.
 // ============================================================
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { listarProductos } from '../services/productoService';
@@ -56,7 +56,17 @@ export default function PosPage() {
   // ---- Resultado de facturación ----
   const [facturaResultado, setFacturaResultado] = useState(null);
 
+  // ---- Anuncio accesible al agregar producto (móvil/tablet) ----
+  const [ultimoAgregado, setUltimoAgregado] = useState('');
+  const anuncioTimer = useRef(null);
+  useEffect(() => () => clearTimeout(anuncioTimer.current), []);
+
+  // ---- Guarda de desmontaje para cargas asíncronas ----
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const cargarCatalogo = useCallback(async () => {
+    if (!mountedRef.current) return;
     setLoading(true);
     setCatalogError('');
     try {
@@ -64,14 +74,16 @@ export default function PosPage() {
         listarProductos({ estado: 'ACTIVO' }),
         listarCategorias({ estado: 'ACTIVO' }),
       ]);
+      if (!mountedRef.current) return;
       setProductos(prods);
       setCategorias(cats);
     } catch (err) {
+      if (!mountedRef.current) return;
       setCatalogError(MSG_SERVER);
       setProductos([]);
       setCategorias([]);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, []);
 
@@ -107,6 +119,10 @@ export default function PosPage() {
         },
       ];
     });
+    // Anuncio accesible (una sola vez, no por cada clic repetido).
+    setUltimoAgregado(`${producto.nombre} agregado al carrito`);
+    clearTimeout(anuncioTimer.current);
+    anuncioTimer.current = setTimeout(() => setUltimoAgregado(''), 2000);
   }, []);
 
   const incrementar = useCallback((id) => {
@@ -135,7 +151,7 @@ export default function PosPage() {
     setMetodoPago('EFECTIVO');
   }, []);
 
-  const generarFactura = async () => {
+  const generarFactura = useCallback(async () => {
     if (cart.length === 0) return;
     setGenerando(true);
     try {
@@ -163,7 +179,9 @@ export default function PosPage() {
     } finally {
       setGenerando(false);
     }
-  };
+  }, [cart, metodoPago, descuentoCOP, cliente, observaciones, vaciarCarrito]);
+
+  const cerrarCarrito = useCallback(() => setCartOpen(false), []);
 
   // ---- Productos filtrados por categoría ----
   const productosActivos = useMemo(() => {
@@ -172,19 +190,34 @@ export default function PosPage() {
     return activos.filter((p) => String(p.id_categoria) === String(categoriaActiva));
   }, [productos, categoriaActiva]);
 
+  // ---- Conteos por categoría (O(1) por pestaña) ----
+  const conteosPorCategoria = useMemo(() => {
+    const m = new Map();
+    let total = 0;
+    for (const p of productos) {
+      if (p.estado !== 'ACTIVO') continue;
+      total += 1;
+      const key = String(p.id_categoria);
+      m.set(key, (m.get(key) || 0) + 1);
+    }
+    m.set('__TOTAL__', total);
+    return m;
+  }, [productos]);
+
   const getCount = useCallback(
     (idCategoria) => {
-      const activos = productos.filter((p) => p.estado === 'ACTIVO');
-      if (idCategoria === null) return activos.length;
-      return activos.filter((p) => String(p.id_categoria) === String(idCategoria)).length;
+      if (idCategoria === null) return conteosPorCategoria.get('__TOTAL__') || 0;
+      return conteosPorCategoria.get(String(idCategoria)) || 0;
     },
-    [productos]
+    [conteosPorCategoria]
   );
 
   const nombreCajero = usuario?.nombre_completo?.split(' ')[0] || '';
 
   return (
     <div className="-mx-4 sm:-mx-6 lg:-mx-8 lg:pr-[416px]">
+      {/* Región en vivo: anuncia en móvil/tablet qué se agregó al carrito */}
+      <p className="sr-only" aria-live="polite">{ultimoAgregado}</p>
       {/* Encabezado del POS */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -279,7 +312,7 @@ export default function PosPage() {
       {/* Carrito: fixed desktop + drawer móvil */}
       <CartPanel
         open={cartOpen}
-        onClose={() => setCartOpen(false)}
+        onClose={cerrarCarrito}
         cart={cart}
         cliente={cliente}
         onClienteChange={setCliente}

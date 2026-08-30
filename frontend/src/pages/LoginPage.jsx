@@ -24,7 +24,7 @@ const FEATURES = [
 ];
 
 const inputCls =
-  'mt-1.5 w-full rounded-xl border border-crema-borde bg-white px-4 py-2.5 text-sm text-carbon placeholder:text-carbon/40';
+  'mt-1.5 w-full rounded-xl border border-crema-borde bg-white px-4 py-2.5 text-sm text-carbon placeholder:text-carbon/60';
 
 export default function LoginPage() {
   const { isAuthenticated, login } = useAuth();
@@ -117,7 +117,7 @@ export default function LoginPage() {
             </span>
             <div>
               <p className="font-display text-xl font-bold text-carbon">Rosto</p>
-              <p className="text-[11px] font-medium uppercase tracking-widest text-carbon/60">
+              <p className="text-[11px] font-medium uppercase tracking-widest text-carbon/75">
                 Punto de venta
               </p>
             </div>
@@ -178,7 +178,7 @@ export default function LoginPage() {
                 Correo: <code>admin@rosto.com</code> · Contraseña:{' '}
                 <code>admin123</code>
               </p>
-              <p className="mt-1 text-carbon/60">Visible solo en desarrollo.</p>
+              <p className="mt-1 text-carbon/75">Visible solo en desarrollo.</p>
             </div>
           )}
         </div>
