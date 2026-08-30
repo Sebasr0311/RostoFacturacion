@@ -60,12 +60,12 @@ VALUES ('Tenders X6 Combo', 'Tenders de pechuga de pollo crispy, con papas a la 
         (SELECT id_categoria FROM categorias WHERE nombre = 'Tenders Combo'), 'ACTIVO');
 
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Tenders X8 Combo', 'Tenders de pechuga de pollo crispy, con papas a la francesa, más tostadas de pan, 2 gaseosas Coca-Cola (250ml) y salsa especial de la casa.', 41900,
+VALUES ('Tenders X8 Combo', 'Tenders de pechuga de pollo crispy, con papas a la francesa, más 2 tostadas de pan, 2 gaseosas Coca-Cola (250ml) y salsa especial de la casa.', 41900,
         (SELECT id_categoria FROM categorias WHERE nombre = 'Tenders Combo'), 'ACTIVO');
 
 -- Hamburguesas
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Classic Chicken Burger', '', 21900,
+VALUES ('Classic Chicken Burger', '4 Tenders de pechuga de pollo crispy, pan de papa, pepinillos agridulce, queso mozzarella y salsa especial de la casa.', 21900,
         (SELECT id_categoria FROM categorias WHERE nombre = 'Hamburguesas'), 'ACTIVO');
 
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
@@ -73,7 +73,7 @@ VALUES ('Classic Chicken Burger Combo', 'Classic chicken burger con papas a la f
         (SELECT id_categoria FROM categorias WHERE nombre = 'Hamburguesas'), 'ACTIVO');
 
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Rosto Chicken Burger', '', 23900,
+VALUES ('Rosto Chicken Burger', '4 Tenders de pechuga de pollo crispy, pan de papa, lechuga crespa, tomate, aros de cebolla blanca, queso mozzarella y salsa especial de la casa.', 23900,
         (SELECT id_categoria FROM categorias WHERE nombre = 'Hamburguesas'), 'ACTIVO');
 
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
@@ -82,7 +82,7 @@ VALUES ('Rosto Chicken Burger Combo', 'Rosto chicken burger con papas a la franc
 
 -- Chicken Dog
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)
-VALUES ('Rosto Chicken Dog', '', 14900,
+VALUES ('Rosto Chicken Dog', '1 Tender grande de pechuga de pollo crispy, pan de papa, cebolla blanca picada, maíz dulce, queso mozzarella y salsa especial de la casa.', 14900,
         (SELECT id_categoria FROM categorias WHERE nombre = 'Chicken Dog'), 'ACTIVO');
 
 INSERT INTO productos (nombre, descripcion, precio, id_categoria, estado)

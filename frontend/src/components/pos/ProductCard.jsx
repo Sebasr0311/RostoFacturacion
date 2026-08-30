@@ -96,7 +96,12 @@ const ProductCard = memo(function ProductCard({ producto, onAdd }) {
         <span className="line-clamp-2 font-display text-[15px] font-semibold leading-snug text-carbon">
           {producto.nombre}
         </span>
-        <p className="mt-1 font-display text-lg font-bold tabular-nums text-rojo-brasa">
+        {producto.descripcion ? (
+          <p className="mt-1 line-clamp-2 text-xs leading-snug text-carbon/70">
+            {producto.descripcion}
+          </p>
+        ) : null}
+        <p className="mt-auto pt-1 font-display text-lg font-bold tabular-nums text-rojo-brasa">
           {formatCOP(producto.precio)}
         </p>
       </div>
